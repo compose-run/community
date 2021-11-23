@@ -1,0 +1,42 @@
+{
+  "name": "composejs-community",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "main": "src/index.js",
+  "dependencies": {
+    "dayjs": "1.10.7",
+    "dompurify": "2.0.0",
+    "firebase": "9.4.0",
+    "luxon": "2.1.1",
+    "marked": "3.0.8",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-scripts": "4.0.3",
+    "uuid": "8.3.2"
+  },
+  "devDependencies": {
+    "@babel/runtime": "7.13.8",
+    "@types/dompurify": "^2.3.1",
+    "@types/react": "^17.0.36",
+    "@types/uuid": "^8.3.3",
+    "typescript": "4.1.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  }
+}
