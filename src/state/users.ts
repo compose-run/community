@@ -1,13 +1,11 @@
-import appName from "./appName";
-import { useCloudReducer } from "../compose-client-dist/module";
+// import appName from "./appName";
+// import { useCloudReducer } from "../compose-client-dist/module";
 
+// TODO - this should be auto imported from compose-client-dist
 export interface User {
-  id: string;
+  id: number;
+  email: string;
 }
-
-export const useUser = () => ({
-  id: "steve",
-});
 
 // export const useUsers = () =>
 //   useCloudReducer({

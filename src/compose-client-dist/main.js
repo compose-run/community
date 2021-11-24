@@ -8,14 +8,32 @@ $parcel$export(module.exports, "setCloudState", () => $1286401b709de588$export$c
 $parcel$export(module.exports, "useCloudState", () => $1286401b709de588$export$a94811eb228b1593);
 $parcel$export(module.exports, "dispatchCloudReducerEvent", () => $1286401b709de588$export$511ece507b5ccd06);
 $parcel$export(module.exports, "useCloudReducer", () => $1286401b709de588$export$f0ca8382c0b7cf66);
-$parcel$export(module.exports, "useLoggedInUser", () => $1286401b709de588$export$aae23f3a65fbe750);
+$parcel$export(module.exports, "magicLinkLogin", () => $1286401b709de588$export$3d519b215a9cf630);
+$parcel$export(module.exports, "useUser", () => $1286401b709de588$export$23bbbc4533528f03);
 $parcel$export(module.exports, "logout", () => $1286401b709de588$export$a0973bcfe11b05c9);
 
 
 
-// Create WebSocket connection
-const $1286401b709de588$var$socket = new WebSocket("ws://localhost:3000");
-// utils
+//////////////////////////////////////////
+// GLOBALS
+//////////////////////////////////////////
+const $1286401b709de588$var$COMPOSE_USER_CACHE_KEY = "compose-cache:user";
+const $1286401b709de588$var$COMPOSE_TOKEN_KEY = "compose-token";
+const $1286401b709de588$var$subscriptions = {
+};
+let $1286401b709de588$var$loggedInUser = null;
+if (localStorage.getItem($1286401b709de588$var$COMPOSE_USER_CACHE_KEY)) $1286401b709de588$var$loggedInUser = $1286401b709de588$var$safeParseJSON(localStorage.getItem($1286401b709de588$var$COMPOSE_USER_CACHE_KEY));
+const $1286401b709de588$var$loggedInUserSubscriptions = new Set();
+const $1286401b709de588$var$ensureSet = (name)=>$1286401b709de588$var$subscriptions[name] = $1286401b709de588$var$subscriptions[name] || new Set()
+;
+const $1286401b709de588$var$magicLinkLoginCallbacks = {
+};
+let $1286401b709de588$var$socketOpen = false;
+const $1286401b709de588$var$queuedMessages = [];
+const $1286401b709de588$var$socket = new WebSocket("ws://localhost:3000"); // TODO - point this to prod on releases
+//////////////////////////////////////////
+// UTILS
+//////////////////////////////////////////
 function $1286401b709de588$var$safeParseJSON(str) {
     if (!str) return null;
     try {
@@ -26,7 +44,10 @@ function $1286401b709de588$var$safeParseJSON(str) {
 }
 function $1286401b709de588$var$send(data) {
     if ($1286401b709de588$var$socketOpen) $1286401b709de588$var$socket.send(JSON.stringify(data));
-    else $1286401b709de588$var$queuedMessages.push(data);
+    else // TODO - after a while, close and try to reconnect
+    // TODO - eventually, throw an error (promise throw)
+    //        on all the places that pushed to this queue
+    $1286401b709de588$var$queuedMessages.push(data);
 }
 // https://blog.trannhat.xyz/generate-a-hash-from-string-in-javascript/
 const $1286401b709de588$var$hashCode = function(s) {
@@ -35,33 +56,21 @@ const $1286401b709de588$var$hashCode = function(s) {
         return a & a;
     }, 0);
 };
-// globals
-const $1286401b709de588$var$subscriptions = {
-};
-let $1286401b709de588$var$loggedInUser = null;
-if (localStorage.getItem("ComposeCachedUser")) $1286401b709de588$var$loggedInUser = $1286401b709de588$var$safeParseJSON(localStorage.getItem("ComposeCachedUser"));
-const $1286401b709de588$var$loggedInUserSubscriptions = new Set();
-const $1286401b709de588$var$ensureSet = (name)=>$1286401b709de588$var$subscriptions[name] = $1286401b709de588$var$subscriptions[name] || new Set()
-;
-const $1286401b709de588$var$magicLinkLoginCallbacks = {
-};
 //////////////////////////////////////////
 // SETUP
 //////////////////////////////////////////
 // On page load, check if the URL contains the `magicLinkToken` param
-const $1286401b709de588$var$magicLinkToken = new URLSearchParams(window.location.search).get("ComposeMagicLinkToken");
+const $1286401b709de588$var$magicLinkToken = new URLSearchParams(window.location.search).get("composeToken");
 if ($1286401b709de588$var$magicLinkToken) $1286401b709de588$var$send({
     type: "LoginRequest",
     token: $1286401b709de588$var$magicLinkToken
 });
-let $1286401b709de588$var$socketOpen = false;
-const $1286401b709de588$var$queuedMessages = [];
 $1286401b709de588$var$socket.addEventListener("open", function(event) {
     $1286401b709de588$var$socketOpen = true;
     $1286401b709de588$var$queuedMessages.forEach($1286401b709de588$var$send);
-    if (localStorage.getItem("compose-token")) $1286401b709de588$var$send({
+    if (localStorage.getItem($1286401b709de588$var$COMPOSE_TOKEN_KEY)) $1286401b709de588$var$send({
         type: "LoginRequest",
-        token: localStorage.getItem("compose-token")
+        token: localStorage.getItem($1286401b709de588$var$COMPOSE_TOKEN_KEY)
     });
 });
 $1286401b709de588$var$socket.addEventListener("close", function(event) {
@@ -82,9 +91,12 @@ $1286401b709de588$var$socket.addEventListener("message", function(event) {
     );
     else if (data.type === "LoginResponse") {
         if (data.token) {
-            localStorage.setItem("compose-token", data.token);
+            localStorage.setItem($1286401b709de588$var$COMPOSE_TOKEN_KEY, data.token);
+            localStorage.setItem($1286401b709de588$var$COMPOSE_USER_CACHE_KEY, JSON.stringify(data.user));
             $1286401b709de588$var$loggedInUser = data.user || null;
             $1286401b709de588$var$magicLinkLoginCallbacks[data.requestId]?.[0](data.user);
+            $1286401b709de588$var$loggedInUserSubscriptions.forEach((callback)=>callback(data.user)
+            );
         } else if (data.error) $1286401b709de588$var$magicLinkLoginCallbacks[data.requestId]?.[1](data.error);
         else {
             // token already saved in localStorage, so just call the callback
@@ -162,10 +174,7 @@ function $1286401b709de588$export$f0ca8382c0b7cf66({ name: name , initialState: 
         (s)=>$1286401b709de588$export$511ece507b5ccd06(name, s)
     ];
 }
-//////////////////////////////////////////
-// USER & AUTH
-//////////////////////////////////////////
-function $1286401b709de588$var$magicLinkLogin({ email: email , appName: appName , redirectUrl: redirectUrl  }) {
+function $1286401b709de588$export$3d519b215a9cf630({ email: email , appName: appName , redirectURL: redirectURL  }) {
     const requestId = Math.random().toString();
     const promise = new Promise((resolve, reject)=>{
         $1286401b709de588$var$magicLinkLoginCallbacks[requestId] = [
@@ -173,18 +182,18 @@ function $1286401b709de588$var$magicLinkLogin({ email: email , appName: appName 
             reject
         ];
     });
-    redirectUrl = redirectUrl || window.location.href;
-    $1286401b709de588$var$socket.send(JSON.stringify({
-        action: "MagicLinkLogin",
+    redirectURL = redirectURL || window.location.href;
+    $1286401b709de588$var$send({
+        type: "SendMagicLinkRequest",
         email: email,
         appName: appName,
-        redirectUrl: redirectUrl,
+        redirectURL: redirectURL,
         requestId: requestId
-    }));
+    });
     return promise;
 }
-function $1286401b709de588$export$aae23f3a65fbe750() {
-    const [user, setUser] = $4Ik1T$react.useState(null);
+function $1286401b709de588$export$23bbbc4533528f03() {
+    const [user, setUser] = $4Ik1T$react.useState($1286401b709de588$var$loggedInUser);
     $4Ik1T$react.useEffect(()=>{
         $1286401b709de588$var$loggedInUserSubscriptions.add(setUser);
         return ()=>{
@@ -194,7 +203,8 @@ function $1286401b709de588$export$aae23f3a65fbe750() {
     return user;
 }
 function $1286401b709de588$export$a0973bcfe11b05c9() {
-    localStorage.removeItem("compose-token");
+    localStorage.removeItem($1286401b709de588$var$COMPOSE_TOKEN_KEY);
+    localStorage.removeItem($1286401b709de588$var$COMPOSE_USER_CACHE_KEY);
     $1286401b709de588$var$socket.send(JSON.stringify({
         type: "LogoutRequest"
     }));

@@ -1,4 +1,3 @@
-import { useRef, useEffect, useState } from "react";
 import { Channel } from "../App";
 import { useMessages, MessageType } from "../state/messages";
 import Message from "./Message";
