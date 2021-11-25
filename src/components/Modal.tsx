@@ -46,7 +46,7 @@ export default function Modal({
           margin: "15% auto" /* 15% from the top and centered */,
           padding: "5px 18px 18px 22px",
           height: "170px",
-          width: "60%" /* Could be more or less, depending on screen size */,
+          width: "400px" /* Could be more or less, depending on screen size */,
           transition: "0.4s" /* Fade in */,
           borderRadius: "5px",
           display: "flex",
