@@ -140,7 +140,7 @@ function $22efd99dd59f6e00$export$511ece507b5ccd06(name, event) {
         value: event
     });
 }
-function $22efd99dd59f6e00$export$f0ca8382c0b7cf66({ name: name , initialState: initialState , reducer: reducer , isPrivate: isPrivate = true  }) {
+function $22efd99dd59f6e00$export$f0ca8382c0b7cf66({ name: name , initialState: initialState , reducer: reducer  }) {
     const [state, setState] = $eUHoZ$useState(initialState);
     $22efd99dd59f6e00$var$useSubscription(name, setState);
     $eUHoZ$useEffect(()=>{
@@ -149,13 +149,11 @@ function $22efd99dd59f6e00$export$f0ca8382c0b7cf66({ name: name , initialState: 
             type: "RegisterReducerRequest",
             name: name,
             reducerCode: reducer.toString(),
-            isPrivate: isPrivate,
             initialState: initialState
         });
     }, [
         name,
         reducer.toString(),
-        isPrivate,
         JSON.stringify(initialState)
     ]);
     return [

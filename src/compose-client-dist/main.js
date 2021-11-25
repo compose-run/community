@@ -151,7 +151,7 @@ function $1286401b709de588$export$511ece507b5ccd06(name, event) {
         value: event
     });
 }
-function $1286401b709de588$export$f0ca8382c0b7cf66({ name: name , initialState: initialState , reducer: reducer , isPrivate: isPrivate = true  }) {
+function $1286401b709de588$export$f0ca8382c0b7cf66({ name: name , initialState: initialState , reducer: reducer  }) {
     const [state, setState] = $4Ik1T$react.useState(initialState);
     $1286401b709de588$var$useSubscription(name, setState);
     $4Ik1T$react.useEffect(()=>{
@@ -160,13 +160,11 @@ function $1286401b709de588$export$f0ca8382c0b7cf66({ name: name , initialState: 
             type: "RegisterReducerRequest",
             name: name,
             reducerCode: reducer.toString(),
-            isPrivate: isPrivate,
             initialState: initialState
         });
     }, [
         name,
         reducer.toString(),
-        isPrivate,
         JSON.stringify(initialState)
     ]);
     return [
