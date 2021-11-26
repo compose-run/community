@@ -26,10 +26,10 @@ if (localStorage.getItem($1286401b709de588$var$COMPOSE_USER_CACHE_KEY)) $1286401
 const $1286401b709de588$var$loggedInUserSubscriptions = new Set();
 const $1286401b709de588$var$ensureSet = (name)=>$1286401b709de588$var$subscriptions[name] = $1286401b709de588$var$subscriptions[name] || new Set()
 ;
-const $1286401b709de588$var$magicLinkLoginCallbacks = {
+const $1286401b709de588$var$callbacks = {
 };
 let $1286401b709de588$var$socketOpen = false;
-const $1286401b709de588$var$queuedMessages = [];
+let $1286401b709de588$var$queuedMessages = [];
 const $1286401b709de588$var$socket = new WebSocket("ws://localhost:3000"); // TODO - point this to prod on releases
 //////////////////////////////////////////
 // UTILS
@@ -43,11 +43,38 @@ function $1286401b709de588$var$safeParseJSON(str) {
     }
 }
 function $1286401b709de588$var$send(data) {
-    if ($1286401b709de588$var$socketOpen) $1286401b709de588$var$socket.send(JSON.stringify(data));
-    else // TODO - after a while, close and try to reconnect
-    // TODO - eventually, throw an error (promise throw)
-    //        on all the places that pushed to this queue
-    $1286401b709de588$var$queuedMessages.push(data);
+    const requestId = (Math.random() + 1).toString(36).substring(7);
+    return new Promise((resolve, reject)=>{
+        $1286401b709de588$var$callbacks[requestId] = [
+            resolve,
+            reject
+        ];
+        if ($1286401b709de588$var$socketOpen) $1286401b709de588$var$actuallySend({
+            ...data,
+            requestId: requestId
+        });
+        else // TODO - after a while, close and try to reconnect
+        // TODO - eventually, throw an error (promise throw)
+        //        on all the places that pushed to this queue
+        $1286401b709de588$var$queuedMessages.push({
+            ...data,
+            requestId: requestId
+        });
+    });
+}
+function $1286401b709de588$var$actuallySend(data) {
+    try {
+        $1286401b709de588$var$socket.send(JSON.stringify(data));
+        $1286401b709de588$var$queuedMessages = $1286401b709de588$var$queuedMessages.filter((d)=>d === data
+        );
+    } catch (e) {
+        console.error(e);
+    }
+}
+function $1286401b709de588$var$updateValue(name, value) {
+    $1286401b709de588$var$ensureSet(name).forEach((callback)=>callback(value)
+    );
+// TODO - cache value in localstorage
 }
 // https://blog.trannhat.xyz/generate-a-hash-from-string-in-javascript/
 const $1286401b709de588$var$hashCode = function(s) {
@@ -67,7 +94,7 @@ if ($1286401b709de588$var$magicLinkToken) $1286401b709de588$var$send({
 });
 $1286401b709de588$var$socket.addEventListener("open", function(event) {
     $1286401b709de588$var$socketOpen = true;
-    $1286401b709de588$var$queuedMessages.forEach($1286401b709de588$var$send);
+    $1286401b709de588$var$queuedMessages.forEach($1286401b709de588$var$actuallySend);
     if (localStorage.getItem($1286401b709de588$var$COMPOSE_TOKEN_KEY)) $1286401b709de588$var$send({
         type: "LoginRequest",
         token: localStorage.getItem($1286401b709de588$var$COMPOSE_TOKEN_KEY)
@@ -87,25 +114,33 @@ $1286401b709de588$var$socket.addEventListener("message", function(event) {
         console.error(event);
         return;
     }
-    if (data.type === "SubscribeResponse" || data.type === "UpdatedValueResponse") $1286401b709de588$var$ensureSet(data.name).forEach((callback)=>callback(data.value)
-    );
-    else if (data.type === "LoginResponse") {
+    if (data.type === "SubscribeResponse" || data.type === "UpdatedValueResponse") {
+        $1286401b709de588$var$callbacks[data.requestId][0](data.value); // resolve anyone awaiting after setting this update
+        $1286401b709de588$var$updateValue(data.name, data.value);
+    } else if (data.type === "LoginResponse") {
         if (data.token) {
             localStorage.setItem($1286401b709de588$var$COMPOSE_TOKEN_KEY, data.token);
             localStorage.setItem($1286401b709de588$var$COMPOSE_USER_CACHE_KEY, JSON.stringify(data.user));
             $1286401b709de588$var$loggedInUser = data.user || null;
-            $1286401b709de588$var$magicLinkLoginCallbacks[data.requestId]?.[0](data.user);
+            $1286401b709de588$var$callbacks[data.requestId]?.[0](data.user);
             $1286401b709de588$var$loggedInUserSubscriptions.forEach((callback)=>callback(data.user)
             );
-        } else if (data.error) $1286401b709de588$var$magicLinkLoginCallbacks[data.requestId]?.[1](data.error);
+        } else if (data.error) $1286401b709de588$var$callbacks[data.requestId]?.[1](data.error);
         else {
             // token already saved in localStorage, so just call the callback
             $1286401b709de588$var$loggedInUser = data.user || null;
-            $1286401b709de588$var$magicLinkLoginCallbacks[data.requestId]?.[0](data.user);
+            $1286401b709de588$var$callbacks[data.requestId]?.[0](data.user);
         }
     } else if (data.type === "ParseErrorResponse") {
         console.error("Sent invalid JSON to server");
         console.error(data.cause);
+    } else if (data.type === "ResolveDispatchResponse") {
+        $1286401b709de588$var$callbacks[data.requestId]?.[0](data.resolveValue);
+        $1286401b709de588$var$updateValue(data.name, data.resolveValue);
+    } else if (data.type === "RuntimeDebugResponse") {
+        data.consoles.forEach((log)=>console.log(`${data.name}: ${log}`)
+        );
+        if (data.error) console.error(`${data.name}: ${data.error.message}\n\n${data.error.stack}`);
     }
 });
 //////////////////////////////////////////
@@ -155,7 +190,6 @@ function $1286401b709de588$export$f0ca8382c0b7cf66({ name: name , initialState: 
     const [state, setState] = $4Ik1T$react.useState(initialState);
     $1286401b709de588$var$useSubscription(name, setState);
     $4Ik1T$react.useEffect(()=>{
-        console.log();
         $1286401b709de588$var$send({
             type: "RegisterReducerRequest",
             name: name,
@@ -173,22 +207,13 @@ function $1286401b709de588$export$f0ca8382c0b7cf66({ name: name , initialState: 
     ];
 }
 function $1286401b709de588$export$3d519b215a9cf630({ email: email , appName: appName , redirectURL: redirectURL  }) {
-    const requestId = Math.random().toString();
-    const promise = new Promise((resolve, reject)=>{
-        $1286401b709de588$var$magicLinkLoginCallbacks[requestId] = [
-            resolve,
-            reject
-        ];
-    });
     redirectURL = redirectURL || window.location.href;
-    $1286401b709de588$var$send({
+    return $1286401b709de588$var$send({
         type: "SendMagicLinkRequest",
         email: email,
         appName: appName,
-        redirectURL: redirectURL,
-        requestId: requestId
+        redirectURL: redirectURL
     });
-    return promise;
 }
 function $1286401b709de588$export$23bbbc4533528f03() {
     const [user, setUser] = $4Ik1T$react.useState($1286401b709de588$var$loggedInUser);

@@ -15,10 +15,10 @@ if (localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_USER_CACHE_KEY)) $22efd99
 const $22efd99dd59f6e00$var$loggedInUserSubscriptions = new Set();
 const $22efd99dd59f6e00$var$ensureSet = (name)=>$22efd99dd59f6e00$var$subscriptions[name] = $22efd99dd59f6e00$var$subscriptions[name] || new Set()
 ;
-const $22efd99dd59f6e00$var$magicLinkLoginCallbacks = {
+const $22efd99dd59f6e00$var$callbacks = {
 };
 let $22efd99dd59f6e00$var$socketOpen = false;
-const $22efd99dd59f6e00$var$queuedMessages = [];
+let $22efd99dd59f6e00$var$queuedMessages = [];
 const $22efd99dd59f6e00$var$socket = new WebSocket("ws://localhost:3000"); // TODO - point this to prod on releases
 //////////////////////////////////////////
 // UTILS
@@ -32,11 +32,38 @@ function $22efd99dd59f6e00$var$safeParseJSON(str) {
     }
 }
 function $22efd99dd59f6e00$var$send(data) {
-    if ($22efd99dd59f6e00$var$socketOpen) $22efd99dd59f6e00$var$socket.send(JSON.stringify(data));
-    else // TODO - after a while, close and try to reconnect
-    // TODO - eventually, throw an error (promise throw)
-    //        on all the places that pushed to this queue
-    $22efd99dd59f6e00$var$queuedMessages.push(data);
+    const requestId = (Math.random() + 1).toString(36).substring(7);
+    return new Promise((resolve, reject)=>{
+        $22efd99dd59f6e00$var$callbacks[requestId] = [
+            resolve,
+            reject
+        ];
+        if ($22efd99dd59f6e00$var$socketOpen) $22efd99dd59f6e00$var$actuallySend({
+            ...data,
+            requestId: requestId
+        });
+        else // TODO - after a while, close and try to reconnect
+        // TODO - eventually, throw an error (promise throw)
+        //        on all the places that pushed to this queue
+        $22efd99dd59f6e00$var$queuedMessages.push({
+            ...data,
+            requestId: requestId
+        });
+    });
+}
+function $22efd99dd59f6e00$var$actuallySend(data) {
+    try {
+        $22efd99dd59f6e00$var$socket.send(JSON.stringify(data));
+        $22efd99dd59f6e00$var$queuedMessages = $22efd99dd59f6e00$var$queuedMessages.filter((d)=>d === data
+        );
+    } catch (e) {
+        console.error(e);
+    }
+}
+function $22efd99dd59f6e00$var$updateValue(name, value) {
+    $22efd99dd59f6e00$var$ensureSet(name).forEach((callback)=>callback(value)
+    );
+// TODO - cache value in localstorage
 }
 // https://blog.trannhat.xyz/generate-a-hash-from-string-in-javascript/
 const $22efd99dd59f6e00$var$hashCode = function(s) {
@@ -56,7 +83,7 @@ if ($22efd99dd59f6e00$var$magicLinkToken) $22efd99dd59f6e00$var$send({
 });
 $22efd99dd59f6e00$var$socket.addEventListener("open", function(event) {
     $22efd99dd59f6e00$var$socketOpen = true;
-    $22efd99dd59f6e00$var$queuedMessages.forEach($22efd99dd59f6e00$var$send);
+    $22efd99dd59f6e00$var$queuedMessages.forEach($22efd99dd59f6e00$var$actuallySend);
     if (localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY)) $22efd99dd59f6e00$var$send({
         type: "LoginRequest",
         token: localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY)
@@ -76,25 +103,33 @@ $22efd99dd59f6e00$var$socket.addEventListener("message", function(event) {
         console.error(event);
         return;
     }
-    if (data.type === "SubscribeResponse" || data.type === "UpdatedValueResponse") $22efd99dd59f6e00$var$ensureSet(data.name).forEach((callback)=>callback(data.value)
-    );
-    else if (data.type === "LoginResponse") {
+    if (data.type === "SubscribeResponse" || data.type === "UpdatedValueResponse") {
+        $22efd99dd59f6e00$var$callbacks[data.requestId][0](data.value); // resolve anyone awaiting after setting this update
+        $22efd99dd59f6e00$var$updateValue(data.name, data.value);
+    } else if (data.type === "LoginResponse") {
         if (data.token) {
             localStorage.setItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY, data.token);
             localStorage.setItem($22efd99dd59f6e00$var$COMPOSE_USER_CACHE_KEY, JSON.stringify(data.user));
             $22efd99dd59f6e00$var$loggedInUser = data.user || null;
-            $22efd99dd59f6e00$var$magicLinkLoginCallbacks[data.requestId]?.[0](data.user);
+            $22efd99dd59f6e00$var$callbacks[data.requestId]?.[0](data.user);
             $22efd99dd59f6e00$var$loggedInUserSubscriptions.forEach((callback)=>callback(data.user)
             );
-        } else if (data.error) $22efd99dd59f6e00$var$magicLinkLoginCallbacks[data.requestId]?.[1](data.error);
+        } else if (data.error) $22efd99dd59f6e00$var$callbacks[data.requestId]?.[1](data.error);
         else {
             // token already saved in localStorage, so just call the callback
             $22efd99dd59f6e00$var$loggedInUser = data.user || null;
-            $22efd99dd59f6e00$var$magicLinkLoginCallbacks[data.requestId]?.[0](data.user);
+            $22efd99dd59f6e00$var$callbacks[data.requestId]?.[0](data.user);
         }
     } else if (data.type === "ParseErrorResponse") {
         console.error("Sent invalid JSON to server");
         console.error(data.cause);
+    } else if (data.type === "ResolveDispatchResponse") {
+        $22efd99dd59f6e00$var$callbacks[data.requestId]?.[0](data.resolveValue);
+        $22efd99dd59f6e00$var$updateValue(data.name, data.resolveValue);
+    } else if (data.type === "RuntimeDebugResponse") {
+        data.consoles.forEach((log)=>console.log(`${data.name}: ${log}`)
+        );
+        if (data.error) console.error(`${data.name}: ${data.error.message}\n\n${data.error.stack}`);
     }
 });
 //////////////////////////////////////////
@@ -144,7 +179,6 @@ function $22efd99dd59f6e00$export$f0ca8382c0b7cf66({ name: name , initialState: 
     const [state, setState] = $eUHoZ$useState(initialState);
     $22efd99dd59f6e00$var$useSubscription(name, setState);
     $eUHoZ$useEffect(()=>{
-        console.log();
         $22efd99dd59f6e00$var$send({
             type: "RegisterReducerRequest",
             name: name,
@@ -162,22 +196,13 @@ function $22efd99dd59f6e00$export$f0ca8382c0b7cf66({ name: name , initialState: 
     ];
 }
 function $22efd99dd59f6e00$export$3d519b215a9cf630({ email: email , appName: appName , redirectURL: redirectURL  }) {
-    const requestId = Math.random().toString();
-    const promise = new Promise((resolve, reject)=>{
-        $22efd99dd59f6e00$var$magicLinkLoginCallbacks[requestId] = [
-            resolve,
-            reject
-        ];
-    });
     redirectURL = redirectURL || window.location.href;
-    $22efd99dd59f6e00$var$send({
+    return $22efd99dd59f6e00$var$send({
         type: "SendMagicLinkRequest",
         email: email,
         appName: appName,
-        redirectURL: redirectURL,
-        requestId: requestId
+        redirectURL: redirectURL
     });
-    return promise;
 }
 function $22efd99dd59f6e00$export$23bbbc4533528f03() {
     const [user, setUser] = $eUHoZ$useState($22efd99dd59f6e00$var$loggedInUser);
