@@ -210,29 +210,30 @@ function AddTagModal({
             justifyContent: "space-evenly",
           }}
         >
-          {channels.slice(1).map((channel, channelIndex) => (
+          {channels.slice(1).map((c, channelIndex) => (
             <button
-              key={channel}
+              key={c}
               onClick={() => {
-                setChannel(channel);
+                setChannel(c);
                 actuallySendMessage();
                 setShowTagModal(false);
               }}
               onMouseEnter={() => {
-                setChannel(channel);
+                setChannel(c);
               }}
               style={{
-                backgroundColor: channelColors[channelIndex],
+                backgroundColor: channelColors[channelIndex + 1],
                 borderRadius: "3px",
                 padding: "5px",
-                // TODO - style selected when selected
+                boxShadow:
+                  c === channel ? "rgb(33 33 33 / 36%) 0px 0px 11px 0px" : "",
+                transition: "box-shadow .3s",
               }}
             >
-              {channel}
+              {c}
             </button>
           ))}
         </div>
-        {/* TODO - need send button for mobile */}
       </div>
     </Modal>
   );
