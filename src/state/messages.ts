@@ -46,7 +46,7 @@ export const useMessages = () =>
       {
         resolve,
         userId,
-      }: { resolve: (e: MessageActionError) => void; userId: number }
+      }: { resolve: (e: MessageActionError) => void; userId: number | null }
     ) => {
       if (action.type === "MessageCreate") {
         // if (action.message.sender === action.context.userId) {

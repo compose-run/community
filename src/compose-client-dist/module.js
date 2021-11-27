@@ -17,9 +17,16 @@ const $22efd99dd59f6e00$var$ensureSet = (name)=>$22efd99dd59f6e00$var$subscripti
 ;
 const $22efd99dd59f6e00$var$callbacks = {
 };
+const $22efd99dd59f6e00$var$getCallbacks = (name)=>{
+    return $22efd99dd59f6e00$var$callbacks[name] || [
+        ()=>void 0
+        ,
+        ()=>void 0
+    ];
+};
 let $22efd99dd59f6e00$var$socketOpen = false;
 let $22efd99dd59f6e00$var$queuedMessages = [];
-const $22efd99dd59f6e00$var$socket = new WebSocket("ws://localhost:3000"); // TODO - point this to prod on releases
+let $22efd99dd59f6e00$var$socket;
 //////////////////////////////////////////
 // UTILS
 //////////////////////////////////////////
@@ -54,7 +61,7 @@ function $22efd99dd59f6e00$var$send(data) {
 function $22efd99dd59f6e00$var$actuallySend(data) {
     try {
         $22efd99dd59f6e00$var$socket.send(JSON.stringify(data));
-        $22efd99dd59f6e00$var$queuedMessages = $22efd99dd59f6e00$var$queuedMessages.filter((d)=>d === data
+        $22efd99dd59f6e00$var$queuedMessages = $22efd99dd59f6e00$var$queuedMessages.filter((d)=>d.requestId !== data.requestId
         );
     } catch (e) {
         console.error(e);
@@ -81,22 +88,10 @@ if ($22efd99dd59f6e00$var$magicLinkToken) $22efd99dd59f6e00$var$send({
     type: "LoginRequest",
     token: $22efd99dd59f6e00$var$magicLinkToken
 });
-$22efd99dd59f6e00$var$socket.addEventListener("open", function(event) {
-    $22efd99dd59f6e00$var$socketOpen = true;
-    $22efd99dd59f6e00$var$queuedMessages.forEach($22efd99dd59f6e00$var$actuallySend);
-    if (localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY)) $22efd99dd59f6e00$var$send({
-        type: "LoginRequest",
-        token: localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY)
-    });
-});
-$22efd99dd59f6e00$var$socket.addEventListener("close", function(event) {
-    $22efd99dd59f6e00$var$socketOpen = false;
-// TODO - reopen socket
-});
 //////////////////////////////////////////
 // HANDLE SERVER RESPONSES
 //////////////////////////////////////////
-$22efd99dd59f6e00$var$socket.addEventListener("message", function(event) {
+const $22efd99dd59f6e00$var$handleServerResponse = function(event) {
     const data = $22efd99dd59f6e00$var$safeParseJSON(event.data);
     if (!data) {
         console.error("Invalid JSON received from server");
@@ -104,34 +99,66 @@ $22efd99dd59f6e00$var$socket.addEventListener("message", function(event) {
         return;
     }
     if (data.type === "SubscribeResponse" || data.type === "UpdatedValueResponse") {
-        $22efd99dd59f6e00$var$callbacks[data.requestId][0](data.value); // resolve anyone awaiting after setting this update
-        $22efd99dd59f6e00$var$updateValue(data.name, data.value);
+        if (data.type === "UpdatedValueResponse" && data.error) $22efd99dd59f6e00$var$getCallbacks(data.requestId)[1](`${data.name}: Cannot set this state because there is a reducer with the same name`);
+        else {
+            $22efd99dd59f6e00$var$getCallbacks(data.requestId)[0](data.value);
+            $22efd99dd59f6e00$var$updateValue(data.name, data.value);
+        }
     } else if (data.type === "LoginResponse") {
         if (data.token) {
             localStorage.setItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY, data.token);
             localStorage.setItem($22efd99dd59f6e00$var$COMPOSE_USER_CACHE_KEY, JSON.stringify(data.user));
             $22efd99dd59f6e00$var$loggedInUser = data.user || null;
-            $22efd99dd59f6e00$var$callbacks[data.requestId]?.[0](data.user);
+            $22efd99dd59f6e00$var$getCallbacks(data.requestId)[0](data.user);
             $22efd99dd59f6e00$var$loggedInUserSubscriptions.forEach((callback)=>callback(data.user)
             );
-        } else if (data.error) $22efd99dd59f6e00$var$callbacks[data.requestId]?.[1](data.error);
+        } else if (data.error) $22efd99dd59f6e00$var$getCallbacks(data.requestId)[1](data.error);
         else {
             // token already saved in localStorage, so just call the callback
             $22efd99dd59f6e00$var$loggedInUser = data.user || null;
-            $22efd99dd59f6e00$var$callbacks[data.requestId]?.[0](data.user);
+            $22efd99dd59f6e00$var$getCallbacks(data.requestId)[0](data.user);
         }
     } else if (data.type === "ParseErrorResponse") {
         console.error("Sent invalid JSON to server");
         console.error(data.cause);
     } else if (data.type === "ResolveDispatchResponse") {
-        $22efd99dd59f6e00$var$callbacks[data.requestId]?.[0](data.resolveValue);
-        $22efd99dd59f6e00$var$updateValue(data.name, data.resolveValue);
+        $22efd99dd59f6e00$var$getCallbacks(data.requestId)[0](data.resolveValue);
+        $22efd99dd59f6e00$var$updateValue(data.name, data.returnValue);
     } else if (data.type === "RuntimeDebugResponse") {
         data.consoles.forEach((log)=>console.log(`${data.name}: ${log}`)
         );
-        if (data.error) console.error(`${data.name}: ${data.error.message}\n\n${data.error.stack}`);
+        if (data.error) console.error(`${data.name}\n\n${data.error.stack}`);
+    } else console.warn(`Unknown response type from Compose server: ${data.type}`);
+};
+//////////////////////////////////////////
+// Setup Websocket
+//////////////////////////////////////////
+const $22efd99dd59f6e00$var$handleSocketOpen = async ()=>{
+    $22efd99dd59f6e00$var$socketOpen = true;
+    if (localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY)) $22efd99dd59f6e00$var$send({
+        type: "LoginRequest",
+        token: localStorage.getItem($22efd99dd59f6e00$var$COMPOSE_TOKEN_KEY)
+    });
+    // maybe sending while awaiting to ensure ordering is overkill
+    // we can definitely include local ordering inside the message itself
+    for (const message of $22efd99dd59f6e00$var$queuedMessages)await $22efd99dd59f6e00$var$actuallySend(message);
+};
+const $22efd99dd59f6e00$var$handleSocketClose = function() {
+    $22efd99dd59f6e00$var$socketOpen = false;
+    setTimeout($22efd99dd59f6e00$var$setupWebsocket, 200);
+};
+function $22efd99dd59f6e00$var$setupWebsocket() {
+    if ($22efd99dd59f6e00$var$socket) $22efd99dd59f6e00$var$socket.close();
+    try {
+        $22efd99dd59f6e00$var$socket = new WebSocket("ws://localhost:3000"); // TODO - point this to prod on releases
+        $22efd99dd59f6e00$var$socket.addEventListener("message", $22efd99dd59f6e00$var$handleServerResponse);
+        $22efd99dd59f6e00$var$socket.addEventListener("open", $22efd99dd59f6e00$var$handleSocketOpen);
+        $22efd99dd59f6e00$var$socket.addEventListener("close", $22efd99dd59f6e00$var$handleSocketClose);
+    } catch (e) {
+        console.error(e);
     }
-});
+}
+$22efd99dd59f6e00$var$setupWebsocket();
 //////////////////////////////////////////
 // Common: Cloud State & Reducer
 //////////////////////////////////////////
@@ -154,11 +181,11 @@ function $22efd99dd59f6e00$var$useSubscription(name, setState) {
     ]);
 }
 function $22efd99dd59f6e00$export$ca1e6d392e234650(name, value) {
-    $22efd99dd59f6e00$var$socket.send(JSON.stringify({
-        action: "update",
+    $22efd99dd59f6e00$var$send({
+        type: "StateUpdateRequest",
         name: name,
         value: value
-    }));
+    });
 }
 function $22efd99dd59f6e00$export$a94811eb228b1593(name, initialState) {
     const [state, setState] = $eUHoZ$useState(initialState);
