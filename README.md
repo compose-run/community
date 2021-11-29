@@ -19,3 +19,7 @@ This project uses Create React App.
   - `components/` (all the React components)
   - `state/` (all the Compose state)
   - `compose-client-dist` (the rsync'd `dist` folder from `compose-node/client`)
+
+## Deployment
+
+This project isn't deployed anywhere currently. We may use github pages 🤷
