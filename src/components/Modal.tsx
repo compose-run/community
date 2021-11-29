@@ -44,9 +44,12 @@ export default function Modal({
           opacity: show ? 1 : 0,
           backgroundColor: "#fefefe",
           margin: "15% auto" /* 15% from the top and centered */,
-          padding: "5px 18px 18px 22px",
-          height: "170px",
-          width: "400px" /* Could be more or less, depending on screen size */,
+          paddingTop: 5,
+          paddingBottom: 22,
+          paddingRight: 18,
+          paddingLeft: 18,
+          minHeight: "170px",
+          width: "470px" /* Could be more or less, depending on screen size */,
           transition: "0.4s" /* Fade in */,
           borderRadius: "5px",
           display: "flex",
@@ -66,7 +69,17 @@ export default function Modal({
         >
           &times;
         </button>
-        {children}
+        <div
+          style={{
+            paddingTop: 5,
+            paddingBottom: 22,
+            paddingRight: 18,
+            paddingLeft: 18,
+          }}
+          onClick={(e) => e.stopPropagation()} // prevent click propagating to parent (closing modal)
+        >
+          {show && children}
+        </div>
       </div>
     </div>
   );

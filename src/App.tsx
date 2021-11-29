@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Messages from "./components/Messages";
 import MessageInput from "./components/MessageInput";
+import { useUser } from "./compose-client-dist/module";
+import WelcomeModal from "./components/WelcomeModal";
 
 export const channels = ["all", "#intro", "#help", "#demo"];
 export const channelColors = [
@@ -14,6 +16,9 @@ export type Channel = typeof channels[number];
 
 export default function ChatApp() {
   const [channel, setChannel] = useState("all");
+
+  const user = useUser();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true); // TODO make false initial state
 
   function changeTag(direction: number) {
     setChannel(
@@ -55,6 +60,12 @@ export default function ChatApp() {
       <Header channel={channel} setChannel={setChannel} />
       <Messages channel={channel} />
       <MessageInput channel={channel} setChannel={setChannel} />
+      {!user && (
+        <WelcomeModal
+          showWelcomeModal={showWelcomeModal}
+          setShowWelcomeModal={setShowWelcomeModal}
+        />
+      )}
     </div>
   );
 }
