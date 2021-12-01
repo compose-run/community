@@ -6,16 +6,18 @@ export type MessageId = string;
 export interface MessageType {
   createdAt: number;
   body: string;
-  sender: string;
+  sender: number;
   id: MessageId;
-  replyTo: MessageId;
+  replyTo?: MessageId;
   tags: string[];
+  children: MessageId[];
+  deleted?: boolean;
 }
 
 interface MessageCreate {
   type: "MessageCreate";
   body: string;
-  sender: string;
+  sender: number;
   replyTo?: MessageId;
   tags: string[];
 }
@@ -25,66 +27,80 @@ interface MessageDelete {
   messageId: MessageId;
 }
 
+type MessagesDB = { [messageId: string]: MessageType };
 interface NewMessages {
   type: "NewMessages";
-  newMessages: MessageType[];
+  newMessages: MessagesDB;
 }
 
 type MessageAction = MessageCreate | MessageDelete | NewMessages;
 
-type MessageActionError = false | "Unauthorized" | "Message does not exist";
+export type MessageActionError =
+  | false
+  | "Unauthorized"
+  | "Message does not exist";
 
-const messagesName = `${appName}/messages`;
+const messagesName = `${appName}/messages-test-dict`;
 
 export const useMessages = () =>
   useCloudReducer({
     name: messagesName,
-    initialState: [],
+    initialState: {},
     reducer: (
-      messages: MessageType[],
+      messages: MessagesDB,
       action: MessageAction,
       {
         resolve,
         userId,
       }: { resolve: (e: MessageActionError) => void; userId: number | null }
-    ) => {
+    ): MessagesDB => {
       if (action.type === "MessageCreate") {
-        // if (action.message.sender === action.context.userId) {
+        if (!userId) {
+          resolve("Unauthorized");
+          return messages;
+        }
+        const messageId = (Math.random() + 1).toString(36).substring(7);
 
-        // very curiously, if you use messages.push here, it adds the message 3x
-        return [
+        resolve(false);
+        return {
           ...messages,
-          {
+          [messageId]: {
             body: action.body,
-            sender: action.sender,
+            sender: userId,
             tags: action.tags,
             replyTo: action.replyTo,
             createdAt: new Date().getTime(),
-            id: (Math.random() + 1).toString(36).substring(7),
+            id: messageId,
+            children: [],
           },
-        ];
-        // } else {
-        //  resolve ("Unauthorized")
-        // }
+        };
       } else if (action.type === "MessageDelete") {
-        const message = messages.find(
-          ({ sender }) => sender === action.messageId
-        );
+        const message = messages[action.messageId];
         if (message) {
-          // if (action.message.sender === action.context.userId) {
-          messages = messages.filter(
-            ({ sender }) => sender !== action.messageId
-          );
-          resolve(false);
-          // } else {
-          //  resolve ("Unauthorized")
-          // }
+          if (message.sender === userId) {
+            resolve(false);
+            return {
+              ...messages,
+              [action.messageId]: { ...message, deleted: true },
+            };
+          } else {
+            resolve("Unauthorized");
+            return messages;
+          }
         } else {
           resolve("Message does not exist");
+          return messages;
         }
       } else if (action.type === "NewMessages") {
-        // TODO - only let admins do this
-        return [...action.newMessages];
+        if (userId === 1 || userId === 2) {
+          // only Steve or Adriaan can do this
+          resolve(false);
+          return { ...action.newMessages };
+        } else {
+          resolve("Unauthorized");
+          return messages;
+        }
       }
+      return { ...messages };
     },
-  });
+  }) as [MessagesDB, (action: MessageAction) => Promise<MessageActionError>];

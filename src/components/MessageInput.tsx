@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Channel, channelColors, channels } from "../App";
 import { useUser } from "../compose-client-dist/module";
-import { useMessages } from "../state/messages";
+import { MessageActionError, useMessages } from "../state/messages";
 import Modal from "./Modal";
 import { User } from "../state/users";
 import LoginModal from "./LoginModal";
@@ -22,9 +22,13 @@ export default function MessageInput({
   const [showTagModal, setShowTagModal] = useState(false);
 
   async function actuallySendMessage() {
+    if (!user) {
+      return "Unauthorized";
+    }
+
     let result = dispatchMessageAction({
       type: "MessageCreate",
-      sender: user?.id, //  TODO -  set this via context, and link to username
+      sender: user.id, //  TODO -  set this via context, and link to username
       body: message,
       tags: [channel], // TODO - find all tags
     });
@@ -106,7 +110,7 @@ function AddTagModal({
   setShowTagModal: (showTagModal: boolean) => void;
   channel: string;
   setChannel: (channel: Channel) => void;
-  actuallySendMessage: () => Promise<string>;
+  actuallySendMessage: () => Promise<MessageActionError>;
 }) {
   const modalRef = useRef<HTMLDivElement>(null);
 

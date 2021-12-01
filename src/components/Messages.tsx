@@ -21,7 +21,10 @@ export default function Messages({ channel }: { channel: Channel }) {
     >
       <div>
         {messages
-          ? messages
+          ? Object.values(messages)
+              .sort(
+                (a: MessageType, b: MessageType) => a.createdAt - b.createdAt
+              )
               .filter(
                 (message: MessageType) =>
                   channel === "all" || message.tags.includes(channel)

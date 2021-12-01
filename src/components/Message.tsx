@@ -54,7 +54,15 @@ export default function Message({
             ))}
         </div>
       </div>
-      <div dangerouslySetInnerHTML={bodyHTML()}></div>
+      <div style={{ marginTop: 8 }} dangerouslySetInnerHTML={bodyHTML()}></div>
+      <div style={{ fontSize: "0.7em", marginTop: 8, display: "flex" }}>
+        <div style={{ color: "#1c6ba7" }} /* TODO onClick */>
+          {0 /* TODO - count replies */} replies
+        </div>
+        <div style={{ marginLeft: 4, color: "#9a999a" }}>
+          Last reply {dayjs(createdAt).fromNow() /* TODO - last reply time */}
+        </div>
+      </div>
     </div>
   );
 }
