@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { magicLinkLogin } from "@compose-run/client";
+import { useEffect, useState } from "react";
+import { magicLinkLogin, useUser } from "@compose-run/client";
 import Modal from "./Modal";
 
 export default function LoginModal({
@@ -11,6 +11,11 @@ export default function LoginModal({
   setShowLoginModal: (showLoginModal: boolean) => void;
   message: string;
 }) {
+  const user = useUser();
+  useEffect(() => {
+    if (user) setShowLoginModal(false);
+  }, [user, setShowLoginModal]);
+
   const [emailSent, setEmailSent] = useState(false);
   return (
     <Modal show={showLoginModal} onClose={() => setShowLoginModal(false)}>
@@ -56,11 +61,11 @@ export default function LoginModal({
                 border: "none",
               }}
               placeholder="you@email.com"
-              onKeyPress={(e) => {
+              onKeyPress={async (e) => {
                 // TODO - disable for mobile
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  magicLinkLogin({
+                  await magicLinkLogin({
                     email: (e.target as HTMLInputElement).value,
                     appName: "Compose Community",
                     redirectURL: undefined, // defaults to current page

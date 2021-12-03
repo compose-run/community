@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Messages from "./components/Messages";
 import MessageInput from "./components/MessageInput";
-import { useUser } from "@compose-run/client/dist";
+import { useUser } from "@compose-run/client";
 import WelcomeModal from "./components/WelcomeModal";
 
 export const channels = ["all", "#intro", "#help", "#demo"];
