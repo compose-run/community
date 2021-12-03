@@ -1,4 +1,4 @@
-import { magicLinkLogin } from "../compose-client-dist/module";
+import { magicLinkLogin } from "@compose-run/client";
 import Modal from "./Modal";
 
 export default function LoginModal({

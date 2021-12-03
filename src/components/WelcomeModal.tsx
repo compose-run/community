@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import LoginModal from "./LoginModal";
 import Modal from "./Modal";
 
