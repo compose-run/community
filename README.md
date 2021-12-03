@@ -24,4 +24,4 @@ This project uses Create React App for hot-module reloading.
 
 ## Deployment
 
-This project isn't deployed anywhere currently. We may use github pages 🤷
+Deployment happens automatically on new pull requests and on merging to main, via Vercel.
