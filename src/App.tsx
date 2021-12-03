@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Messages from "./components/Messages";
 import MessageInput from "./components/MessageInput";
-import { useUser } from "./compose-client-dist/module";
+import { useUser } from "@compose-run/client/dist";
 import WelcomeModal from "./components/WelcomeModal";
 
 export const channels = ["all", "#intro", "#help", "#demo"];
@@ -20,31 +20,20 @@ export default function ChatApp() {
   const user = useUser();
   const [showWelcomeModal, setShowWelcomeModal] = useState(true); // TODO make false initial state
 
-  function changeTag(direction: number) {
-    setChannel(
-      channels[
-        Math.min(
-          channels.length - 1,
-          Math.max(0, channels.indexOf(channel) + direction)
-        )
-      ]
-    );
-  }
-
   // navigate with arrow keys
   useEffect(() => {
     const close = (e: KeyboardEvent) => {
       if (["TEXTAREA", "INPUT"].includes((e.target as HTMLElement).nodeName))
         return;
       if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
-        changeTag(-1);
+        changeTag(-1, channel, setChannel);
       } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
-        changeTag(1);
+        changeTag(1, channel, setChannel);
       }
     };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
-  }, [channel]);
+  }, [channel, setChannel]);
 
   return (
     <div
@@ -67,5 +56,20 @@ export default function ChatApp() {
         />
       )}
     </div>
+  );
+}
+
+function changeTag(
+  direction: number,
+  channel: string,
+  setChannel: (channel: Channel) => void
+) {
+  setChannel(
+    channels[
+      Math.min(
+        channels.length - 1,
+        Math.max(0, channels.indexOf(channel) + direction)
+      )
+    ]
   );
 }

@@ -17,7 +17,7 @@ export default function Modal({
     };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
-  }, []);
+  }, [onClose]);
 
   // modal styles: https://www.w3schools.com/howto/howto_css_modals.asp
   return (

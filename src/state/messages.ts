@@ -1,4 +1,4 @@
-import { useCloudReducer } from "../compose-client-dist/module";
+import { useCloudReducer } from "@compose-run/client";
 import appName from "./appName";
 
 export type MessageId = string;
@@ -43,17 +43,10 @@ export type MessageActionError =
 const messagesName = `${appName}/messages-test-dict`;
 
 export const useMessages = () =>
-  useCloudReducer({
+  useCloudReducer<MessagesDB, MessageAction, MessageActionError>({
     name: messagesName,
     initialState: {},
-    reducer: (
-      messages: MessagesDB,
-      action: MessageAction,
-      {
-        resolve,
-        userId,
-      }: { resolve: (e: MessageActionError) => void; userId: number | null }
-    ): MessagesDB => {
+    reducer: (messages, action, { resolve, userId }): MessagesDB => {
       if (action.type === "MessageCreate") {
         if (!userId) {
           resolve("Unauthorized");
