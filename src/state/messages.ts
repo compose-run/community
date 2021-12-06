@@ -55,45 +55,36 @@ export const useMessages = () =>
         const messageId = (Math.random() + 1).toString(36).substring(7);
 
         resolve(false);
-        return {
-          ...messages,
-          [messageId]: {
-            body: action.body,
-            sender: userId,
-            tags: action.tags,
-            replyTo: action.replyTo,
-            createdAt: new Date().getTime(),
-            id: messageId,
-            children: [],
-          },
+        messages[messageId] = {
+          body: action.body,
+          sender: userId,
+          tags: action.tags,
+          replyTo: action.replyTo,
+          createdAt: new Date().getTime(),
+          id: messageId,
+          children: [],
         };
       } else if (action.type === "MessageDelete") {
         const message = messages[action.messageId];
         if (message) {
           if (message.sender === userId) {
             resolve(false);
-            return {
-              ...messages,
-              [action.messageId]: { ...message, deleted: true },
-            };
+            messages[action.messageId].deleted = true;
           } else {
             resolve("Unauthorized");
-            return messages;
           }
         } else {
           resolve("Message does not exist");
-          return messages;
         }
       } else if (action.type === "NewMessages") {
         if (userId === 1 || userId === 2) {
           // only Steve or Adriaan can do this
           resolve(false);
-          return { ...action.newMessages };
+          return action.newMessages;
         } else {
           resolve("Unauthorized");
-          return messages;
         }
       }
-      return { ...messages };
+      return messages;
     },
   }) as [MessagesDB, (action: MessageAction) => Promise<MessageActionError>];
