@@ -2,8 +2,6 @@ import { useCloudReducer } from "@compose-run/client";
 import appName from "./appName";
 
 export type MessageId = string;
-
-console.log(JSON.stringify(process.env));
 export interface MessageType {
   createdAt: number;
   body: string;
