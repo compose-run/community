@@ -1,11 +1,9 @@
-import { useCloudReducer, User } from "@compose-run/client";
+import { useCloudReducer } from "@compose-run/client";
 import appName from "./appName";
 
-type UserId = number;
+type UsersDB = { [userId: number]: string };
 
-type UsersDB = { [userId: UserId]: string };
-
-type UserAction = string;
+export type UserAction = string;
 type UserActionError = string;
 
 // interface SetUserName {
@@ -20,7 +18,10 @@ export const useUsers = () =>
     name: usersName,
     initialState: {},
     reducer: (users, action, { resolve, userId }): UsersDB => {
-      users[userId] = action;
+      console.log("test");
+      console.log([users, action, userId]);
+      (users || {})[userId] = action;
+      console.log([users, action, userId]);
       return users;
     },
   }) as [UsersDB, (action: UserAction) => Promise<UserActionError>];

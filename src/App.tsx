@@ -4,6 +4,7 @@ import Messages from "./components/Messages";
 import MessageInput from "./components/MessageInput";
 import { useUser } from "@compose-run/client";
 import WelcomeModal from "./components/WelcomeModal";
+import UserSettings from "./components/UserSettings";
 
 export const channels = ["all", "#intro", "#help", "#demo"];
 export const channelColors = [
@@ -55,6 +56,7 @@ export default function ChatApp() {
           setShowWelcomeModal={setShowWelcomeModal}
         />
       )}
+      <UserSettings />
     </div>
   );
 }
