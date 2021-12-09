@@ -4,10 +4,9 @@ This is our Discord or Slack alternative, built on top of Compose, mainly to dog
 
 ## How to use
 
-This project is currently pointed at a local Compose Websocket Server (`ws://localhost:3000`), so you'll need to setup and run `compose-node` to provide the local backend for this project. (You can also point this at the production compose server link, found on Railway.)
-
 - Install dependencies `npm install`
-- Run dev server `npm start`
+- Run app pointed at local Compose server `npm run local` (runs on port 3001 to not conflict the local Compose server running on port 3000)
+- Run app pointed at prod Compose server `npm start` (runs on port 3000)
 
 ## Project structure
 

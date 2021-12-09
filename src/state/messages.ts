@@ -2,7 +2,6 @@ import { useCloudReducer } from "@compose-run/client";
 import appName from "./appName";
 
 export type MessageId = string;
-
 export interface MessageType {
   createdAt: number;
   body: string;
@@ -40,7 +39,7 @@ export type MessageActionError =
   | "Unauthorized"
   | "Message does not exist";
 
-const messagesName = `${appName}/messages-test-dict`;
+const messagesName = `${appName}/messages`;
 
 export const useMessages = () =>
   useCloudReducer<MessagesDB, MessageAction, MessageActionError>({
