@@ -1,19 +1,19 @@
-// import appName from "./appName";
-// import { useCloudReducer } from "../compose-client-dist/module";
+import { useCloudReducer } from "@compose-run/client";
+import appName from "./appName";
 
-// TODO - this should be auto imported from compose-client-dist
-export interface User {
-  id: number;
-  email: string;
-}
+type UsersDB = { [userId: number]: string };
 
-// export const useUsers = () =>
-//   useCloudReducer({
-//     name: `${appName}/users`,
-//     initialState: [
-//       {
-//         id: "steve",
-//       },
-//     ],
-//     reducer: (users: User[]) => users,
-//   });
+export type UserAction = string;
+type UserActionError = string;
+
+const usersName = `${appName}/user-settings-1`;
+
+export const useUsers = () =>
+  useCloudReducer<UsersDB, UserAction, UserActionError>({
+    name: usersName,
+    initialState: {},
+    reducer: (users, action, { userId }): UsersDB => {
+      users[userId] = action;
+      return users;
+    },
+  });

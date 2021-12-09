@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useUser } from "@compose-run/client";
+import { useUsers } from "./state/users";
 import Header from "./components/Header";
 import Messages from "./components/Messages";
 import MessageInput from "./components/MessageInput";
-import { useUser } from "@compose-run/client";
 import WelcomeModal from "./components/WelcomeModal";
+import SetUsernameModal from "./components/SetUsernameModal";
 
 export const channels = ["all", "#intro", "#help", "#demo"];
 export const channelColors = [
@@ -18,7 +20,12 @@ export default function ChatApp() {
   const [channel, setChannel] = useState("all");
 
   const user = useUser();
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true); // TODO make false initial state
+  const [users] = useUsers();
+  const [showWelcomeModal_, setShowWelcomeModal] = useState(true);
+  const showWelcomeModal = !user && showWelcomeModal_;
+  const [showUsernameModal_, setShowUsernameModal] = useState(true);
+  const showUsernameModal =
+    !!user && !!users && !users[user.id] && showUsernameModal_;
 
   // navigate with arrow keys
   useEffect(() => {
@@ -49,12 +56,16 @@ export default function ChatApp() {
       <Header channel={channel} setChannel={setChannel} />
       <Messages channel={channel} />
       <MessageInput channel={channel} setChannel={setChannel} />
-      {!user && (
-        <WelcomeModal
-          showWelcomeModal={showWelcomeModal}
-          setShowWelcomeModal={setShowWelcomeModal}
-        />
-      )}
+
+      <WelcomeModal
+        showWelcomeModal={showWelcomeModal}
+        setShowWelcomeModal={setShowWelcomeModal}
+      />
+
+      <SetUsernameModal
+        showUsernameModal={showUsernameModal}
+        setShowUsernameModal={setShowUsernameModal}
+      />
     </div>
   );
 }

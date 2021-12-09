@@ -86,4 +86,4 @@ export const useMessages = () =>
       }
       return messages;
     },
-  }) as [MessagesDB, (action: MessageAction) => Promise<MessageActionError>];
+  });

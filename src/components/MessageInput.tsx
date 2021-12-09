@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Channel, channelColors, channels } from "../App";
-import { useUser } from "@compose-run/client";
+import { useUser, User } from "@compose-run/client";
 import { MessageActionError, useMessages } from "../state/messages";
 import Modal from "./Modal";
-import { User } from "../state/users";
 import LoginModal from "./LoginModal";
 
 export default function MessageInput({

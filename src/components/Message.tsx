@@ -1,6 +1,8 @@
 import { sanitize } from "dompurify";
 import { channels, channelColors } from "../App";
 import { MessageType } from "../state/messages";
+import { useUsers } from "../state/users";
+
 const marked = require("marked");
 var dayjs = require("dayjs");
 var relativeTime = require("dayjs/plugin/relativeTime");
@@ -15,8 +17,7 @@ export default function Message({
   message: MessageType;
   style: { borderBottom: string };
 }) {
-  // TODO - lookup name & profile pic from sender id
-
+  const [users] = useUsers();
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
@@ -30,7 +31,7 @@ export default function Message({
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline" }}>
-        <b>{sender}</b>
+        <b>{(users && users[sender]) || "User " + sender}</b>
         <div style={{ fontSize: "0.7em", marginLeft: 4 }}>
           {dayjs(createdAt).fromNow()}
         </div>
