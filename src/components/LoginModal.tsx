@@ -58,11 +58,13 @@ export default function LoginModal({
                 color: "#6e6c6c",
                 marginTop: "25px",
                 paddingLeft: ".3em",
+                // would be nice to have it show the input border if the input is not selected
+                // but there's no css hover state selectors natively in react
+                // maybe we'll move to tailwind or some other lib that supports that
                 border: "none",
               }}
               placeholder="you@email.com"
               onKeyPress={async (e) => {
-                // TODO - disable for mobile
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   await magicLinkLogin({
@@ -76,7 +78,6 @@ export default function LoginModal({
             ></input>
           </div>
         )}
-        {/* TODO - need send button for mobile */}
       </div>
     </Modal>
   );

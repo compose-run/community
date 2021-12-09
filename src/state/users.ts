@@ -6,22 +6,14 @@ type UsersDB = { [userId: number]: string };
 export type UserAction = string;
 type UserActionError = string;
 
-// interface SetUserName {
-//   type: "SetUserName";
-//   username: string;
-// }
-
-const usersName = `${appName}/user-settings`;
+const usersName = `${appName}/user-settings-1`;
 
 export const useUsers = () =>
   useCloudReducer<UsersDB, UserAction, UserActionError>({
     name: usersName,
     initialState: {},
-    reducer: (users, action, { resolve, userId }): UsersDB => {
-      console.log("test");
-      console.log([users, action, userId]);
-      (users || {})[userId] = action;
-      console.log([users, action, userId]);
+    reducer: (users, action, { userId }): UsersDB => {
+      users[userId] = action;
       return users;
     },
-  }) as [UsersDB, (action: UserAction) => Promise<UserActionError>];
+  });
