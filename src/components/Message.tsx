@@ -17,8 +17,6 @@ export default function Message({
   message: MessageType;
   style: { borderBottom: string };
 }) {
-  // TODO - lookup name & profile pic from sender id
-
   const [users] = useUsers();
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
@@ -33,7 +31,7 @@ export default function Message({
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline" }}>
-        <b>{users ? users[sender] || sender : sender}</b>
+        <b>{(users && users[sender]) || "User " + sender}</b>
         <div style={{ fontSize: "0.7em", marginLeft: 4 }}>
           {dayjs(createdAt).fromNow()}
         </div>
