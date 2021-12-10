@@ -34,7 +34,7 @@ export const usePresence = () => {
       dispatchPresence(nw);
     }, 1000 * 20);
     return () => clearInterval(interval);
-  }, [userId]); // do this effect when the userId changes
+  }, [userId, dispatchPresence]); // do this effect when the userId changes
   if (presenceDb) {
     return Object.values(presenceDb).filter(
       (lastSeen: number) => lastSeen > nw - 30 * 1000
