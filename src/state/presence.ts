@@ -21,18 +21,16 @@ export const usePresence = () => {
       return users;
     },
   });
-  const [lastTime, setLastTime] = useState(0);
   const [numberOnline, setNumberOnline] = useState(0);
   useEffect(() => {
     setInterval(() => {
       const nw = Date.now();
       dispatchPresence(nw);
-      setLastTime(nw);
+      console.log(presenceDb);
       setNumberOnline(
-        (presenceDb || {})
-          .values()
-          .filter((lastSeen: number) => lastSeen > nw - 30 * 1000)
-          .length()
+        Object.values(presenceDb || {}).filter(
+          (lastSeen: number) => lastSeen > nw - 30 * 1000
+        ).length
       );
     }, 1000 * 20);
   });
