@@ -1,4 +1,5 @@
 import { Channel, channels, channelColors } from "../App";
+import Presence from "../components/Presence";
 
 export default function Header({
   channel,
@@ -71,6 +72,7 @@ export default function Header({
           ></div>
         </div>
       </div>
+      <Presence />
     </nav>
   );
 }

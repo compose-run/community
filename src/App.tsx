@@ -6,7 +6,6 @@ import Messages from "./components/Messages";
 import MessageInput from "./components/MessageInput";
 import WelcomeModal from "./components/WelcomeModal";
 import SetUsernameModal from "./components/SetUsernameModal";
-import Presence from "./components/Presence";
 
 export const channels = ["all", "#intro", "#help", "#demo"];
 export const channelColors = [
@@ -54,7 +53,6 @@ export default function ChatApp() {
         width: "100%",
       }}
     >
-      <Presence />
       <Header channel={channel} setChannel={setChannel} />
       <Messages channel={channel} />
       <MessageInput channel={channel} setChannel={setChannel} />
