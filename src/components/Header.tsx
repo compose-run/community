@@ -79,9 +79,13 @@ export default function Header({
           ></div>
         </div>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", fontSize: "11px" }}>
-        {numberOnline} online
-      </div>
+      {numberOnline ? (
+        <div style={{ display: "flex", flexWrap: "wrap", fontSize: "11px" }}>
+          {numberOnline} online
+        </div>
+      ) : (
+        <></>
+      )}
     </nav>
   );
 }
