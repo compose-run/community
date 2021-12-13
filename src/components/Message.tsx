@@ -27,7 +27,17 @@ export default function Message({
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
-
+  const saveMsg = () => {
+    setEditing(false);
+    // TODO: resolve edit message promise, show a spinner or greyed out version
+    // of the message while we know the result.
+    messageDispatch({
+      type: "MessageEdit",
+      messageId: id,
+      body: editingMsg,
+    });
+    setEditingMsg("");
+  };
   return (
     <div
       style={{
@@ -36,80 +46,115 @@ export default function Message({
         borderBottom,
       }}
     >
-      <div style={{ display: "flex", alignItems: "baseline" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          rowGap: "10px",
+          columnGap: "5px",
+          flexWrap: "wrap",
+        }}
+      >
         <b>{(users && users[sender]) || "User " + sender}</b>
-        <div style={{ fontSize: "0.7em", marginLeft: 4 }}>
-          {dayjs(createdAt).fromNow()}
-        </div>
-        <div>
-          {tags
-            .filter((tag) => tag !== channel)
-            .map((tag, index) => (
-              <div
-                key={index}
-                style={{
-                  fontSize: "0.7em",
-                  marginLeft: 4,
-                  padding: 2,
-                  fontFamily: "monospace",
-                  backgroundColor: channelColors[channels.indexOf(tag)],
-                  borderRadius: 5,
-                }}
-              >
-                {tag}
-              </div>
-            ))}
-        </div>
-        {user && user.id === sender ? (
-          <div
-            style={{ fontSize: "0.7em", marginLeft: "4px", marginRight: "4px" }}
-          >
-            {editing ? (
-              <button
-                onClick={() => {
-                  setEditing(false);
-                  // TODO: resolve edit message promise
-                  messageDispatch({
-                    type: "MessageEdit",
-                    messageId: id,
-                    body: editingMsg,
-                  });
-                  setEditingMsg("");
-                }}
-              >
-                ✔️
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setEditingMsg(body);
-                  setEditing(true);
-                }}
-              >
-                ✏️
-              </button>
-            )}
-            {
-              <button
-                onClick={() =>
-                  messageDispatch({ type: "MessageDelete", messageId: id })
-                }
-              >
-                ❌
-              </button>
-            }
+        <div style={{ display: "flex" }}>
+          <div style={{ fontSize: "0.7em" }}>{dayjs(createdAt).fromNow()}</div>
+          <div>
+            {tags
+              .filter((tag) => tag !== channel)
+              .map((tag, index) => (
+                <div
+                  key={index}
+                  style={{
+                    fontSize: "0.7em",
+                    marginLeft: 4,
+                    padding: 2,
+                    fontFamily: "monospace",
+                    backgroundColor: channelColors[channels.indexOf(tag)],
+                    borderRadius: 5,
+                  }}
+                >
+                  {tag}
+                </div>
+              ))}
           </div>
-        ) : (
-          <></>
-        )}
+          {user && user.id === sender ? (
+            <div
+              style={{
+                fontSize: "0.7em",
+                marginLeft: "4px",
+                marginRight: "4px",
+              }}
+            >
+              {editing ? (
+                <></>
+              ) : (
+                <button
+                  onClick={() => {
+                    setEditingMsg(body);
+                    setEditing(true);
+                  }}
+                >
+                  ✏️
+                </button>
+              )}
+              {
+                <button
+                  onClick={() =>
+                    messageDispatch({ type: "MessageDelete", messageId: id })
+                  }
+                >
+                  ❌
+                </button>
+              }
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
       {editing ? (
-        <textarea
-          value={editingMsg}
-          onChange={(e) => {
-            setEditingMsg((e.target as HTMLTextAreaElement).value);
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            columnGap: "20px",
+            alignItems: "right",
+            flexDirection: "column",
+            padding: "10px",
           }}
-        ></textarea>
+        >
+          <textarea
+            value={editingMsg}
+            onChange={(e) => {
+              setEditingMsg((e.target as HTMLTextAreaElement).value);
+            }}
+            onKeyPress={(e) => {
+              // TODO - disable for mobile
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                saveMsg();
+              }
+            }}
+          ></textarea>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              columnGap: "20px",
+              justifyContent: "flex-end",
+            }}
+          >
+            <button
+              onClick={() => {
+                setEditing(false);
+                setEditingMsg("");
+              }}
+            >
+              Cancel
+            </button>
+            <button onClick={saveMsg}>Save</button>
+          </div>
+        </div>
       ) : (
         <div
           style={{ marginTop: 8 }}
