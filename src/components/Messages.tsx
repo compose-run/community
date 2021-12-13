@@ -27,29 +27,27 @@ export default function Messages({ channel }: { channel: Channel }) {
               )
               .filter(
                 (message: MessageType) =>
-                  channel === "all" || message.tags.includes(channel)
+                  !message.deleted &&
+                  (channel === "all" || message.tags.includes(channel))
               )
               .map(
                 (
                   message: MessageType,
                   index: number,
                   messagesViewing: MessageType[]
-                ) =>
-                  message.deleted ? (
-                    <></>
-                  ) : (
-                    <Message
-                      style={{
-                        borderBottom:
-                          index + 1 !== messagesViewing.length
-                            ? "1px solid lightgray"
-                            : "none",
-                      }}
-                      key={index}
-                      message={message}
-                      channel={channel}
-                    />
-                  )
+                ) => (
+                  <Message
+                    style={{
+                      borderBottom:
+                        index + 1 !== messagesViewing.length
+                          ? "1px solid lightgray"
+                          : "none",
+                    }}
+                    key={index}
+                    message={message}
+                    channel={channel}
+                  />
+                )
               )
           : "Loading..."}
       </div>
