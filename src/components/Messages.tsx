@@ -34,19 +34,22 @@ export default function Messages({ channel }: { channel: Channel }) {
                   message: MessageType,
                   index: number,
                   messagesViewing: MessageType[]
-                ) => (
-                  <Message
-                    style={{
-                      borderBottom:
-                        index + 1 !== messagesViewing.length
-                          ? "1px solid lightgray"
-                          : "none",
-                    }}
-                    key={index}
-                    message={message}
-                    channel={channel}
-                  />
-                )
+                ) =>
+                  message.deleted ? (
+                    <></>
+                  ) : (
+                    <Message
+                      style={{
+                        borderBottom:
+                          index + 1 !== messagesViewing.length
+                            ? "1px solid lightgray"
+                            : "none",
+                      }}
+                      key={index}
+                      message={message}
+                      channel={channel}
+                    />
+                  )
               )
           : "Loading..."}
       </div>

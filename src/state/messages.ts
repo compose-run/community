@@ -21,6 +21,13 @@ interface MessageCreate {
   tags: string[];
 }
 
+interface MessageEdit {
+  type: "MessageEdit";
+  body?: string;
+  messageId: MessageId;
+  tags?: string[];
+}
+
 interface MessageDelete {
   type: "MessageDelete";
   messageId: MessageId;
@@ -32,7 +39,7 @@ interface NewMessages {
   newMessages: MessagesDB;
 }
 
-type MessageAction = MessageCreate | MessageDelete | NewMessages;
+type MessageAction = MessageCreate | MessageEdit | MessageDelete | NewMessages;
 
 export type MessageActionError =
   | false
@@ -63,6 +70,23 @@ export const useMessages = () =>
           id: messageId,
           children: [],
         };
+      } else if (action.type === "MessageEdit") {
+        const message = messages[action.messageId];
+        if (message) {
+          if (message.sender === userId) {
+            resolve(false);
+            if (action.body) {
+              messages[action.messageId].body = action.body;
+            }
+            if (action.tags) {
+              messages[action.messageId].tags = action.tags;
+            }
+          } else {
+            resolve("Unauthorized");
+          }
+        } else {
+          resolve("Message does not exist");
+        }
       } else if (action.type === "MessageDelete") {
         const message = messages[action.messageId];
         if (message) {

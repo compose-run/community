@@ -1,7 +1,8 @@
 import { sanitize } from "dompurify";
 import { channels, channelColors } from "../App";
-import { MessageType } from "../state/messages";
+import { useMessages, MessageType } from "../state/messages";
 import { useUsers } from "../state/users";
+import { useState } from "react";
 
 const marked = require("marked");
 var dayjs = require("dayjs");
@@ -10,7 +11,7 @@ dayjs.extend(relativeTime);
 
 export default function Message({
   channel,
-  message: { body, sender, createdAt, replyTo, tags },
+  message: { body, id, sender, createdAt, replyTo, tags },
   style: { borderBottom },
 }: {
   channel: string;
@@ -18,6 +19,9 @@ export default function Message({
   style: { borderBottom: string };
 }) {
   const [users] = useUsers();
+  const [editing, setEditing] = useState(false);
+  const [editingMsg, setEditingMsg] = useState("");
+  const [, messageDispatch] = useMessages();
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
@@ -30,6 +34,39 @@ export default function Message({
         borderBottom,
       }}
     >
+      {editing ? (
+        // TODO: put MessageEdit action here
+        <button
+          onClick={() => {
+            setEditing(false);
+            // TODO: resolve edit message promise
+            messageDispatch({
+              type: "MessageEdit",
+              messageId: id,
+              body: editingMsg,
+            });
+            setEditingMsg("");
+          }}
+        >
+          Save
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            setEditingMsg(body);
+            setEditing(true);
+          }}
+        >
+          Edit
+        </button>
+      )}
+      <button
+        onClick={() =>
+          messageDispatch({ type: "MessageDelete", messageId: id })
+        }
+      >
+        Delete
+      </button>
       <div style={{ display: "flex", alignItems: "baseline" }}>
         <b>{(users && users[sender]) || "User " + sender}</b>
         <div style={{ fontSize: "0.7em", marginLeft: 4 }}>
@@ -55,7 +92,19 @@ export default function Message({
             ))}
         </div>
       </div>
-      <div style={{ marginTop: 8 }} dangerouslySetInnerHTML={bodyHTML()}></div>
+      {editing ? (
+        <textarea
+          value={editingMsg}
+          onChange={(e) => {
+            setEditingMsg((e.target as HTMLTextAreaElement).value);
+          }}
+        ></textarea>
+      ) : (
+        <div
+          style={{ marginTop: 8 }}
+          dangerouslySetInnerHTML={bodyHTML()}
+        ></div>
+      )}
       <div style={{ fontSize: "0.7em", marginTop: 8, display: "flex" }}>
         <div style={{ color: "#1c6ba7" }} /* TODO onClick */>
           {0 /* TODO - count replies */} replies
