@@ -60,7 +60,7 @@ export default function Message({
               </div>
             ))}
         </div>
-        {user && user.id == sender ? (
+        {user && user.id === sender ? (
           <div
             style={{ fontSize: "0.7em", marginLeft: "4px", marginRight: "4px" }}
           >
