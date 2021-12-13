@@ -1,6 +1,6 @@
 import { useCloudReducer } from "@compose-run/client";
 import appName from "./appName";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useUser } from "@compose-run/client";
 
 // Maps user id to "last seen" unix timestamp.
