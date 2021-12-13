@@ -3,6 +3,7 @@ import { channels, channelColors } from "../App";
 import { useMessages, MessageType } from "../state/messages";
 import { useUsers } from "../state/users";
 import { useState } from "react";
+import { useUser } from "@compose-run/client";
 
 const marked = require("marked");
 var dayjs = require("dayjs");
@@ -19,6 +20,7 @@ export default function Message({
   style: { borderBottom: string };
 }) {
   const [users] = useUsers();
+  const user = useUser();
   const [editing, setEditing] = useState(false);
   const [editingMsg, setEditingMsg] = useState("");
   const [, messageDispatch] = useMessages();
@@ -34,39 +36,6 @@ export default function Message({
         borderBottom,
       }}
     >
-      {editing ? (
-        // TODO: put MessageEdit action here
-        <button
-          onClick={() => {
-            setEditing(false);
-            // TODO: resolve edit message promise
-            messageDispatch({
-              type: "MessageEdit",
-              messageId: id,
-              body: editingMsg,
-            });
-            setEditingMsg("");
-          }}
-        >
-          Save
-        </button>
-      ) : (
-        <button
-          onClick={() => {
-            setEditingMsg(body);
-            setEditing(true);
-          }}
-        >
-          Edit
-        </button>
-      )}
-      <button
-        onClick={() =>
-          messageDispatch({ type: "MessageDelete", messageId: id })
-        }
-      >
-        Delete
-      </button>
       <div style={{ display: "flex", alignItems: "baseline" }}>
         <b>{(users && users[sender]) || "User " + sender}</b>
         <div style={{ fontSize: "0.7em", marginLeft: 4 }}>
@@ -91,6 +60,48 @@ export default function Message({
               </div>
             ))}
         </div>
+        {user && user.id == sender ? (
+          <div
+            style={{ fontSize: "0.7em", marginLeft: "4px", marginRight: "4px" }}
+          >
+            {editing ? (
+              <button
+                onClick={() => {
+                  setEditing(false);
+                  // TODO: resolve edit message promise
+                  messageDispatch({
+                    type: "MessageEdit",
+                    messageId: id,
+                    body: editingMsg,
+                  });
+                  setEditingMsg("");
+                }}
+              >
+                ✔️
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setEditingMsg(body);
+                  setEditing(true);
+                }}
+              >
+                ✏️
+              </button>
+            )}
+            {
+              <button
+                onClick={() =>
+                  messageDispatch({ type: "MessageDelete", messageId: id })
+                }
+              >
+                ❌
+              </button>
+            }
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
       {editing ? (
         <textarea
