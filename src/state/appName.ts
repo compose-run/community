@@ -1,2 +1,2 @@
-const appName = `@${process.env.REACT_APP_VERCEL_GIT_REPO_OWNER}/${process.env.REACT_APP_VERCEL_GIT_REPO_SLUG}/${process.env.REACT_APP_VERCEL_GIT_COMMIT_REF}`;
-export default appName;
+export const appName = `@${process.env.REACT_APP_VERCEL_GIT_REPO_OWNER}/${process.env.REACT_APP_VERCEL_GIT_REPO_SLUG}/${process.env.REACT_APP_VERCEL_GIT_COMMIT_REF}/${process.env.REACT_APP_VERCEL_GIT_COMMIT_SHA}`;
+export const previousAppName = `@${process.env.REACT_APP_VERCEL_GIT_REPO_OWNER}/${process.env.REACT_APP_VERCEL_GIT_REPO_SLUG}/${process.env.REACT_APP_VERCEL_GIT_COMMIT_REF}/${process.env.REACT_APP_VERCEL_PREVIOUS_GIT_COMMIT_SHA}`;

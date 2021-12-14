@@ -31,7 +31,7 @@ export default function Message({
       }}
     >
       <div style={{ display: "flex", alignItems: "baseline" }}>
-        <b>{(users && users[sender]) || "User " + sender}</b>
+        <b>{(users && users[sender]?.name) || "User " + sender}</b>
         <div style={{ fontSize: "0.7em", marginLeft: 4 }}>
           {dayjs(createdAt).fromNow()}
         </div>

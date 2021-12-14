@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@compose-run/client": "^0.0.26",
+    "@compose-run/client": "^0.0.27",
     "dayjs": "1.10.7",
     "dompurify": "2.0.0",
     "firebase": "9.4.0",
@@ -26,7 +26,7 @@
   "scripts": {
     "local": "sh ./env.sh && PORT=3001 REACT_APP_COMPOSE_SERVER_URL=ws://localhost:3000 react-scripts start",
     "start": "sh ./env.sh && react-scripts start",
-    "build": "react-scripts build",
+    "build": "sh ./env.sh && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
