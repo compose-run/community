@@ -4,6 +4,7 @@ import { useMessages, MessageType } from "../state/messages";
 import { useUsers } from "../state/users";
 import { useState } from "react";
 import { useUser } from "@compose-run/client";
+import Modal from "./Modal";
 
 const marked = require("marked");
 var dayjs = require("dayjs");
@@ -24,6 +25,7 @@ export default function Message({
   const [editing, setEditing] = useState(false);
   const [editingMsg, setEditingMsg] = useState("");
   const [, messageDispatch] = useMessages();
+  const [deleteModalShown, setDeleteModalShown] = useState(false);
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
@@ -46,6 +48,28 @@ export default function Message({
         borderBottom,
       }}
     >
+      <Modal show={deleteModalShown} onClose={() => null}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div>Are you sure you want to delete this message?</div>
+          <div style={{ display: "flex" }}>
+            <>
+              {
+                // TODO: Get a consistent button style for the whole app.
+              }
+              <button
+                onClick={() => {
+                  setDeleteModalShown(false);
+                  // TODO: resolve delete promise
+                  messageDispatch({ type: "MessageDelete", messageId: id });
+                }}
+              >
+                Delete
+              </button>
+              <button onClick={() => setDeleteModalShown(false)}>Cancel</button>
+            </>
+          </div>
+        </div>
+      </Modal>
       <div
         style={{
           display: "flex",
@@ -97,15 +121,7 @@ export default function Message({
                   ✏️
                 </button>
               )}
-              {
-                <button
-                  onClick={() =>
-                    messageDispatch({ type: "MessageDelete", messageId: id })
-                  }
-                >
-                  ❌
-                </button>
-              }
+              {<button onClick={() => setDeleteModalShown(true)}>❌</button>}
             </div>
           ) : (
             <></>
