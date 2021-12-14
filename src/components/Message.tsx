@@ -5,6 +5,8 @@ import { useUsers } from "../state/users";
 import { useState } from "react";
 import { useUser } from "@compose-run/client";
 import Modal from "./Modal";
+import Messages from "./Messages";
+import ReplyInput from "./ReplyInput";
 
 const marked = require("marked");
 var dayjs = require("dayjs");
@@ -26,6 +28,7 @@ export default function Message({
   const [editingMsg, setEditingMsg] = useState("");
   const [, messageDispatch] = useMessages();
   const [deleteModalShown, setDeleteModalShown] = useState(false);
+  const [showReplyInput, setShowReplyInput] = useState(false);
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
@@ -121,7 +124,10 @@ export default function Message({
                   ✏️
                 </button>
               )}
-              {<button onClick={() => setDeleteModalShown(true)}>❌</button>}
+              <button onClick={() => setDeleteModalShown(true)}>❌</button>
+              <button onClick={() => setShowReplyInput(!showReplyInput)}>
+                Reply
+              </button>
             </div>
           ) : (
             <></>
@@ -184,6 +190,13 @@ export default function Message({
         <div style={{ marginLeft: 4, color: "#9a999a" }}>
           Last reply {dayjs(createdAt).fromNow() /* TODO - last reply time */}
         </div>
+      </div>
+      {
+        // TODO: Wonky to keep channel around for a "reply"?
+      }
+      {showReplyInput ? <ReplyInput channel={channel} replyTo={id} /> : <></>}
+      <div style={{ paddingLeft: "10px" }}>
+        <Messages channel={channel} replyTo={id} />
       </div>
     </div>
   );
