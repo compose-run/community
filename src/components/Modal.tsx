@@ -29,7 +29,6 @@ export default function Modal({
         top: 0,
         width: "100%" /* Full width */,
         height: "100%" /* Full height */,
-        overflow: "auto" /* Enable scroll if needed */,
         backgroundColor: show
           ? "rgba(0,0,0,0.2)"
           : "rgba(0,0,0,0)" /* Black w/ opacity */,

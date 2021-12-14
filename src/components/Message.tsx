@@ -42,6 +42,7 @@ export default function Message({
   };
   return (
     <div
+      className="group"
       style={{
         paddingBottom: 10,
         paddingTop: 10,
@@ -103,6 +104,7 @@ export default function Message({
           </div>
           {user && user.id === sender ? (
             <div
+              className="hidden group-hover:block"
               style={{
                 fontSize: "0.7em",
                 marginLeft: "4px",
