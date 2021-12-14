@@ -38,7 +38,7 @@ export default function Messages({
               )
               .filter(
                 (message: MessageType) =>
-                  message.replyTo == replyTo &&
+                  message.replyTo === replyTo &&
                   !message.deleted &&
                   (channel === "all" || message.tags.includes(channel))
               )

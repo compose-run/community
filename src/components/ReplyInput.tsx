@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { Channel, channelColors, channels } from "../App";
+import { useState } from "react";
+import { Channel } from "../App";
 import { useUser, User } from "@compose-run/client";
-import { MessageActionError, useMessages, MessageId } from "../state/messages";
-import Modal from "./Modal";
+import { useMessages, MessageId } from "../state/messages";
 import LoginModal from "./LoginModal";
 
 // TODO: De-duplicate code between this and MessageInput.
