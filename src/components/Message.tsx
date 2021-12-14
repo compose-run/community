@@ -194,7 +194,15 @@ export default function Message({
       {
         // TODO: Wonky to keep channel around for a "reply"?
       }
-      {showReplyInput ? <ReplyInput channel={channel} replyTo={id} /> : <></>}
+      {showReplyInput ? (
+        <ReplyInput
+          channel={channel}
+          replyTo={id}
+          onReply={() => setShowReplyInput(false)}
+        />
+      ) : (
+        <></>
+      )}
       <div style={{ paddingLeft: "10px" }}>
         <Messages channel={channel} replyTo={id} />
       </div>

@@ -9,9 +9,11 @@ import LoginModal from "./LoginModal";
 export default function ReplyInput({
   channel,
   replyTo,
+  onReply,
 }: {
   channel: Channel;
   replyTo: MessageId;
+  onReply?: () => void;
 }) {
   const user: User | null = useUser();
   const [, dispatchMessageAction] = useMessages();
@@ -32,6 +34,7 @@ export default function ReplyInput({
       replyTo: replyTo,
     });
     setMessage("");
+    onReply && onReply(); // TODO: pass result here?
     return result;
   }
 
