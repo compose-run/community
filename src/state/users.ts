@@ -1,33 +1,19 @@
 import { useCloudReducer } from "@compose-run/client";
-import { appName, getPreviousState } from "./appName";
+import appName from "./appName";
 
-type User = { name: string };
-
-type UsersDBOld = { [userId: number]: string };
-type UsersDB = { [userId: number]: User };
+type UsersDB = { [userId: number]: string };
 
 export type UserAction = string;
 type UserActionError = string;
 
-const users = "user-settings";
-
-const migration = (state: UsersDB | UsersDBOld): UsersDB => {
-  if (typeof Object.values(state)[0] === "object") {
-    // need to handle the case where the migrations already happened
-    return state as UsersDB;
-  } else {
-    return Object.fromEntries(
-      Object.entries(state).map(([id, name]) => [id, { name }])
-    );
-  }
-};
+const usersName = `${appName}/user-settings-1`;
 
 export const useUsers = () =>
   useCloudReducer<UsersDB, UserAction, UserActionError>({
-    name: `${appName}/${users}`,
-    initialState: getPreviousState(users, {}).then(migration),
+    name: usersName,
+    initialState: {},
     reducer: (users, action, { userId }): UsersDB => {
-      users[userId] = { name: action };
+      users[userId] = action;
       return users;
     },
   });

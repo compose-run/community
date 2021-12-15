@@ -1,5 +1,5 @@
 import { useCloudReducer } from "@compose-run/client";
-import { appName, getPreviousState } from "./appName";
+import appName from "./appName";
 
 export type MessageId = string;
 export interface MessageType {
@@ -46,12 +46,12 @@ export type MessageActionError =
   | "Unauthorized"
   | "Message does not exist";
 
-const messages = "messages";
+const messagesName = `${appName}/messages`;
 
 export const useMessages = () =>
   useCloudReducer<MessagesDB, MessageAction, MessageActionError>({
-    name: `${appName}/${messages}`,
-    initialState: getPreviousState(messages, {}),
+    name: messagesName,
+    initialState: {},
     reducer: (messages, action, { resolve, userId }): MessagesDB => {
       if (action.type === "MessageCreate") {
         if (!userId) {
