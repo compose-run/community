@@ -46,7 +46,7 @@ export default function Message({
   };
   return (
     <>
-      <Modal show={deleteModalShown} onClose={() => null}>
+      <Modal show={deleteModalShown} onClose={() => setDeleteModalShown(false)}>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div>Are you sure you want to delete this message?</div>
           <div style={{ display: "flex" }}>
