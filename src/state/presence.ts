@@ -1,5 +1,5 @@
-import { getCloudState, useCloudReducer } from "@compose-run/client";
-import { appName, previousAppName } from "./appName";
+import { useCloudReducer } from "@compose-run/client";
+import { appName, getPreviousState } from "./appName";
 import { useEffect } from "react";
 import { useUser } from "@compose-run/client";
 
@@ -14,13 +14,11 @@ const presence = "user-presence";
 export const usePresence = () => {
   const [presenceDb, dispatchPresence] = useCloudReducer<
     PresenceDB,
-    PresenceAction,
+    PresenceAction, // action
     PresenceActionError
   >({
     name: `${appName}/${presence}`,
-    initialState: getCloudState<PresenceDB>(
-      `${previousAppName}/${presence}`
-    ).then((s) => s || {}),
+    initialState: getPreviousState(presence, {}),
     reducer: (users, _, { userId, timestamp }) => {
       if (userId) {
         users[userId] = timestamp;

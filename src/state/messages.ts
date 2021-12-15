@@ -1,5 +1,5 @@
-import { useCloudReducer, getCloudState } from "@compose-run/client";
-import { appName, previousAppName } from "./appName";
+import { useCloudReducer } from "@compose-run/client";
+import { appName, getPreviousState } from "./appName";
 
 export type MessageId = string;
 export interface MessageType {
@@ -51,9 +51,7 @@ const messages = "messages";
 export const useMessages = () =>
   useCloudReducer<MessagesDB, MessageAction, MessageActionError>({
     name: `${appName}/${messages}`,
-    initialState: getCloudState<MessagesDB>(
-      `${previousAppName}/${messages}`
-    ).then((s) => s || {}),
+    initialState: getPreviousState(messages, {}),
     reducer: (messages, action, { resolve, userId }): MessagesDB => {
       if (action.type === "MessageCreate") {
         if (!userId) {
