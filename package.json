@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@compose-run/client": "^0.0.26",
+    "@compose-run/client": "^0.0.28",
     "dayjs": "1.10.7",
     "dompurify": "2.0.0",
     "firebase": "9.4.0",
