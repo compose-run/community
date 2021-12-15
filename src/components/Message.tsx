@@ -80,7 +80,7 @@ export default function Message({
           flexWrap: "wrap",
         }}
       >
-        <b>{(users && users[sender]) || "User " + sender}</b>
+        <b>{(users && users[sender]?.name) || "User " + sender}</b>
         <div style={{ display: "flex" }}>
           <div style={{ fontSize: "0.7em" }}>{dayjs(createdAt).fromNow()}</div>
           <div>
