@@ -27,7 +27,8 @@ export default function Messages({ channel }: { channel: Channel }) {
               )
               .filter(
                 (message: MessageType) =>
-                  channel === "all" || message.tags.includes(channel)
+                  !message.deleted &&
+                  (channel === "all" || message.tags.includes(channel))
               )
               .map(
                 (
