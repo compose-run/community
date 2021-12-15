@@ -30,6 +30,10 @@ export default function Message({
   const [deleteModalShown, setDeleteModalShown] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const tagsHere = tags.filter((tag) => tag !== channel);
+  const buttonStyleTODO =
+    "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded";
+  const dangerButtonStyleTODO =
+    "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded";
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
@@ -47,14 +51,15 @@ export default function Message({
   return (
     <>
       <Modal show={deleteModalShown} onClose={() => setDeleteModalShown(false)}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div className="grid grid-cols-1 gap-4">
           <div>Are you sure you want to delete this message?</div>
-          <div style={{ display: "flex" }}>
+          <div className="flex gap-2">
             <>
               {
                 // TODO: Get a consistent button style for the whole app.
               }
               <button
+                className={dangerButtonStyleTODO}
                 onClick={() => {
                   setDeleteModalShown(false);
                   // TODO: resolve delete promise
@@ -63,7 +68,12 @@ export default function Message({
               >
                 Delete
               </button>
-              <button onClick={() => setDeleteModalShown(false)}>Cancel</button>
+              <button
+                className={buttonStyleTODO}
+                onClick={() => setDeleteModalShown(false)}
+              >
+                Cancel
+              </button>
             </>
           </div>
         </div>
