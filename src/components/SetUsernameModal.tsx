@@ -1,4 +1,5 @@
-import { useUsers } from "../state/users";
+import { useState } from "react";
+import { useUsers, UserActionError } from "../state/users";
 import Modal from "./Modal";
 
 export default function SetUsernameModal({
@@ -9,6 +10,7 @@ export default function SetUsernameModal({
   setShowUsernameModal: (showUsernameModal: boolean) => void;
 }) {
   const [, dispatchUpdateUserAction] = useUsers();
+  const [error, setError] = useState<UserActionError | null>(null);
   return (
     <Modal show={showUsernameModal} onClose={() => setShowUsernameModal(false)}>
       <div
@@ -47,12 +49,29 @@ export default function SetUsernameModal({
               if (e.key === "Enter") {
                 e.preventDefault();
                 // could await this, and add a spinner...
-                dispatchUpdateUserAction((e.target as HTMLInputElement).value);
-                setShowUsernameModal(false);
+                dispatchUpdateUserAction(
+                  (e.target as HTMLInputElement).value
+                ).then((result) => {
+                  setError(result);
+                  if (result === null) {
+                    setShowUsernameModal(false);
+                  }
+                });
               }
             }}
           />
         </div>
+        {error !== null ? (
+          <div>
+            {
+              {
+                [UserActionError.NameTaken]: "Username taken",
+              }[error]
+            }
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
     </Modal>
   );
