@@ -47,11 +47,13 @@ export default function SetUsernameModal({
             }}
             onKeyPress={async (e) => {
               if (e.key === "Enter") {
+                console.log("hello");
                 e.preventDefault();
                 // could await this, and add a spinner...
                 dispatchUpdateUserAction(
                   (e.target as HTMLInputElement).value
                 ).then((result) => {
+                  console.log(result);
                   setError(result);
                   if (result === null) {
                     setShowUsernameModal(false);
@@ -61,16 +63,14 @@ export default function SetUsernameModal({
             }}
           />
         </div>
-        {error !== null ? (
-          <div>
-            {
-              {
-                [UserActionError.NameTaken]: "Username taken",
-              }[error]
-            }
-          </div>
-        ) : (
+        {error === null ? (
           <></>
+        ) : (
+          <div>
+            {error === UserActionError.NameTaken
+              ? "Username taken"
+              : "Unhandled error"}
+          </div>
         )}
       </div>
     </Modal>
