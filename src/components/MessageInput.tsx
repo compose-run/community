@@ -53,7 +53,12 @@ export default function MessageInput({
       <textarea
         rows={message.split("\n").length}
         value={message}
-        style={{ width: "100%", padding: 7 }}
+        style={{
+          width: "100%",
+          padding: 7,
+          border: "1.5px solid lightgray",
+          borderRadius: 4,
+        }}
         placeholder={
           "Send message" + (channel === "all" ? "..." : ` to ${channel}`)
         }
