@@ -17,13 +17,14 @@ export default function ReplyInput({
   const [message, setMessage] = useState("");
 
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
 
   async function actuallySendMessage() {
     if (!user) {
       return "Unauthorized";
     }
-
-    let result = dispatchMessageAction({
+    setMessageSending(true);
+    await dispatchMessageAction({
       type: "MessageCreate",
       sender: user.id, //  TODO -  set this via context, and link to username
       body: message,
@@ -31,8 +32,8 @@ export default function ReplyInput({
       replyTo: replyTo,
     });
     setMessage("");
+    setMessageSending(false);
     onReply && onReply(); // TODO: pass result here?
-    return result;
   }
 
   function sendMessage() {
@@ -46,11 +47,15 @@ export default function ReplyInput({
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <div
+      className={messageSending ? "animate-pulse" : ""}
+      style={{ display: "flex" }}
+    >
       <textarea
         rows={message.split("\n").length}
         value={message}
         style={{ width: "100%", padding: 7 }}
+        disabled={messageSending}
         placeholder={
           "Reply message"
           // TODO: Reply to <username> maybe?

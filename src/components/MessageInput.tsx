@@ -15,25 +15,27 @@ export default function MessageInput({
   const user: User | null = useUser();
   const [, dispatchMessageAction] = useMessages();
   const [message, setMessage] = useState("");
-
   const [showLoginModal, setShowLoginModal] = useState(false);
-
   const [showTagModal, setShowTagModal] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
 
-  async function actuallySendMessage() {
+  async function actuallySendMessage(): Promise<
+    MessageActionError | undefined
+  > {
     // TODO: Having to check for user again is smelly.
     if (!user) {
       return "Unauthorized";
     }
 
-    let result = dispatchMessageAction({
+    setMessageSending(true);
+    await dispatchMessageAction({
       type: "MessageCreate",
       sender: user.id, //  TODO -  set this via context, and link to username
       body: message,
       tags: [channel], // TODO - find all tags
     });
     setMessage("");
-    return result;
+    setMessageSending(false);
   }
 
   function sendMessage() {
@@ -49,10 +51,14 @@ export default function MessageInput({
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <div
+      className={messageSending ? "animate-pulse" : ""}
+      style={{ display: "flex" }}
+    >
       <textarea
         rows={message.split("\n").length}
         value={message}
+        disabled={messageSending}
         style={{
           width: "100%",
           padding: 7,
@@ -115,7 +121,7 @@ function AddTagModal({
   setShowTagModal: (showTagModal: boolean) => void;
   channel: string;
   setChannel: (channel: Channel) => void;
-  actuallySendMessage: () => Promise<MessageActionError>;
+  actuallySendMessage: () => Promise<MessageActionError | undefined>;
 }) {
   const modalRef = useRef<HTMLDivElement>(null);
 
