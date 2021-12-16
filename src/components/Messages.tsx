@@ -14,11 +14,6 @@ export default function Messages({
   // flex, column-reverse, and extra div trick to make the messages scroll to the bottom
   // https://stackoverflow.com/questions/18614301/keep-overflow-div-scrolled-to-bottom-unless-user-scrolls-up/21067431#comment79201655_44051405
 
-  // const theseMsgs =
-  //   messages
-  //   ? (Object.values(messages)
-  //     .filter((message) =>
-  //       replyTo ? message.replyTo == replyTo
   return (
     <div
       style={{
