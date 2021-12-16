@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useUsers } from "../state/users";
 import Modal from "./Modal";
 
@@ -9,9 +10,12 @@ export default function SetUsernameModal({
   setShowUsernameModal: (showUsernameModal: boolean) => void;
 }) {
   const [, dispatchUpdateUserAction] = useUsers();
+  const [waitingUsernameSet, setWaitingForUsernameSet] = useState(false);
+
   return (
     <Modal show={showUsernameModal} onClose={() => setShowUsernameModal(false)}>
       <div
+        className={waitingUsernameSet ? "animate-pulse" : ""}
         style={{
           marginTop: 35,
           display: "flex",
@@ -32,6 +36,7 @@ export default function SetUsernameModal({
             type="text"
             name="username"
             autoFocus
+            disabled={waitingUsernameSet}
             style={{
               width: "80%",
               fontSize: "1.2em",
@@ -47,8 +52,8 @@ export default function SetUsernameModal({
               if (e.key === "Enter") {
                 e.preventDefault();
                 // could await this, and add a spinner...
+                setWaitingForUsernameSet(true);
                 dispatchUpdateUserAction((e.target as HTMLInputElement).value);
-                setShowUsernameModal(false);
               }
             }}
           />

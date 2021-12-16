@@ -24,8 +24,12 @@ export default function ChatApp() {
   const [showWelcomeModal_, setShowWelcomeModal] = useState(true);
   const showWelcomeModal = !user && showWelcomeModal_;
   const [showUsernameModal_, setShowUsernameModal] = useState(true);
+  // TODO: Maybe this should be a spinner until the "users" value is downloaded?
+  // (Rather than flashing the "set username" modal.)
   const showUsernameModal =
-    !!user && !!users && !users[user.id] && showUsernameModal_;
+    !!user &&
+    !(users && users[user.id] && users[user.id].name) &&
+    showUsernameModal_;
 
   // navigate with arrow keys
   useEffect(() => {
