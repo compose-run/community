@@ -97,7 +97,7 @@ export default function Message({
               flexWrap: "wrap",
             }}
           >
-            <b>{(users && users[sender]) || "User " + sender}</b>
+            <b>{(users && users[sender].name) || "User " + sender}</b>
             <div style={{ display: "flex", columnGap: "5px" }}>
               <div style={{ fontSize: "0.7em" }}>
                 {dayjs(createdAt).fromNow()}
@@ -222,11 +222,7 @@ export default function Message({
           // TODO: Wonky to keep channel around for a "reply"?
         }
         {showReplyInput ? (
-          <ReplyInput
-            channel={channel}
-            replyTo={id}
-            onReply={() => setShowReplyInput(false)}
-          />
+          <ReplyInput replyTo={id} onReply={() => setShowReplyInput(false)} />
         ) : (
           <></>
         )}
