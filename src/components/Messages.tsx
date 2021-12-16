@@ -38,9 +38,13 @@ export default function Messages({
               )
               .filter(
                 (message: MessageType) =>
-                  message.replyTo === replyTo &&
                   !message.deleted &&
-                  (channel === "all" || message.tags.includes(channel))
+                  (!replyTo
+                    ? // It's the top level messages we want
+                      !message.replyTo &&
+                      (channel === "all" || message.tags.includes(channel))
+                    : // We're listing replies to a message
+                      message.replyTo === replyTo)
               )
               .map(
                 (

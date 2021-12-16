@@ -7,11 +7,9 @@ import LoginModal from "./LoginModal";
 // TODO: De-duplicate code between this and MessageInput.
 
 export default function ReplyInput({
-  channel,
   replyTo,
   onReply,
 }: {
-  channel: Channel;
   replyTo: MessageId;
   onReply?: () => void;
 }) {
@@ -30,7 +28,7 @@ export default function ReplyInput({
       type: "MessageCreate",
       sender: user.id, //  TODO -  set this via context, and link to username
       body: message,
-      tags: [channel], // TODO - find all tags
+      tags: [], // TODO - find all tags
       replyTo: replyTo,
     });
     setMessage("");
