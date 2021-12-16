@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Channel } from "../App";
 import { useUser, User } from "@compose-run/client";
 import { useMessages, MessageId } from "../state/messages";
 import LoginModal from "./LoginModal";
