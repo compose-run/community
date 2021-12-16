@@ -26,6 +26,9 @@ export default function Message({
   const [editingMsg, setEditingMsg] = useState("");
   const [, messageDispatch] = useMessages();
   const [deleteModalShown, setDeleteModalShown] = useState(false);
+  // FIXME: deleting, setDeleting use very error prone (has to be set on delete
+  // modal close, cancel button, etc.)
+  const [deleting, setDeleting] = useState(false);
   function bodyHTML() {
     return { __html: sanitize(marked.parse(body)) };
   }
@@ -49,8 +52,11 @@ export default function Message({
         borderBottom,
       }}
     >
-      <Modal show={deleteModalShown} onClose={() => null}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
+      <Modal show={deleteModalShown} onClose={() => setDeleting(false)}>
+        <div
+          className={deleting ? "animate-pulse" : ""}
+          style={{ display: "flex", flexDirection: "column" }}
+        >
           <div>Are you sure you want to delete this message?</div>
           <div style={{ display: "flex" }}>
             <>
@@ -58,15 +64,23 @@ export default function Message({
                 // TODO: Get a consistent button style for the whole app.
               }
               <button
+                disabled={deleting}
                 onClick={() => {
-                  setDeleteModalShown(false);
                   // TODO: resolve delete promise
                   messageDispatch({ type: "MessageDelete", messageId: id });
+                  setDeleting(true);
                 }}
               >
                 Delete
               </button>
-              <button onClick={() => setDeleteModalShown(false)}>Cancel</button>
+              <button
+                onClick={() => {
+                  setDeleteModalShown(false);
+                  setDeleting(false);
+                }}
+              >
+                Cancel
+              </button>
             </>
           </div>
         </div>
