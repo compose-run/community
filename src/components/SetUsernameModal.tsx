@@ -51,7 +51,6 @@ export default function SetUsernameModal({
             onKeyPress={async (e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                // could await this, and add a spinner...
                 setWaitingForUsernameSet(true);
                 dispatchUpdateUserAction((e.target as HTMLInputElement).value);
               }
