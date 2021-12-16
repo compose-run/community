@@ -17,6 +17,7 @@ export default function LoginModal({
   }, [user, setShowLoginModal]);
 
   const [emailSent, setEmailSent] = useState(false);
+  const [waitingForEmailSent, setWaitingForEmailSent] = useState(false);
   return (
     <Modal show={showLoginModal} onClose={() => setShowLoginModal(false)}>
       <div
@@ -52,12 +53,15 @@ export default function LoginModal({
           <div>
             <input
               autoFocus
+              className={waitingForEmailSent ? "animate-pulse" : ""}
+              disabled={waitingForEmailSent}
               style={{
                 width: "80%",
                 fontSize: "1.2em",
                 color: "#6e6c6c",
                 marginTop: "25px",
                 paddingLeft: ".3em",
+                // TODO:
                 // would be nice to have it show the input border if the input is not selected
                 // but there's no css hover state selectors natively in react
                 // maybe we'll move to tailwind or some other lib that supports that
@@ -67,12 +71,14 @@ export default function LoginModal({
               onKeyPress={async (e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
+                  setWaitingForEmailSent(true);
                   await magicLinkLogin({
                     email: (e.target as HTMLInputElement).value,
                     appName: "Compose Community",
                     redirectURL: undefined, // defaults to current page
                   });
                   setEmailSent(true);
+                  setWaitingForEmailSent(false);
                 }
               }}
             ></input>
