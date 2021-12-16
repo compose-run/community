@@ -29,6 +29,7 @@ export default function Message({
   const [, messageDispatch] = useMessages();
   const [deleteModalShown, setDeleteModalShown] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
+  // The tags that are not just the channel name.
   const tagsHere = tags.filter((tag) => tag !== channel);
   const buttonStyleTODO =
     "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded";
@@ -97,7 +98,6 @@ export default function Message({
             }}
           >
             <b>{(users && users[sender]) || "User " + sender}</b>
-            {String(tagsHere)}
             <div style={{ display: "flex", columnGap: "5px" }}>
               <div style={{ fontSize: "0.7em" }}>
                 {dayjs(createdAt).fromNow()}
