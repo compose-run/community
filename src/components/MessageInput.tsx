@@ -21,6 +21,7 @@ export default function MessageInput({
   const [showTagModal, setShowTagModal] = useState(false);
 
   async function actuallySendMessage() {
+    // TODO: Having to check for user again is smelly.
     if (!user) {
       return "Unauthorized";
     }

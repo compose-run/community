@@ -58,9 +58,14 @@ export const useMessages = () =>
           resolve("Unauthorized");
           return messages;
         }
+        // TODO: Better identifiers (UUID/...).
         const messageId = (Math.random() + 1).toString(36).substring(7);
 
-        resolve(false);
+        if (action.replyTo) {
+          if (messages[action.replyTo]) {
+            messages[action.replyTo].children.push(messageId);
+          }
+        }
         messages[messageId] = {
           body: action.body,
           sender: userId,
@@ -70,6 +75,7 @@ export const useMessages = () =>
           id: messageId,
           children: [],
         };
+        resolve(false);
       } else if (action.type === "MessageEdit") {
         const message = messages[action.messageId];
         if (message) {
