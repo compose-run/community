@@ -1,5 +1,5 @@
 import { Channel } from "../App";
-import { useMessages, MessageType, MessageId } from "../state/messages";
+import { useMessages, MessageType } from "../state/messages";
 import Message from "./Message";
 
 export default function Messages({ channel }: { channel: Channel }) {
