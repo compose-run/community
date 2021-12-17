@@ -11,6 +11,8 @@ export interface MessageType {
   tags: string[];
   children: MessageId[];
   deleted?: boolean;
+  descendantsCount?: number;
+  latestReplyAt?: number;
 }
 
 interface MessageCreate {
@@ -52,24 +54,47 @@ export const useMessages = () =>
   useCloudReducer<MessagesDB, MessageAction, MessageActionError>({
     name: `${appName}/${messages}`,
     initialState: getPreviousState(messages, {}),
-    reducer: (messages, action, { resolve, userId }): MessagesDB => {
+    reducer: (messages, action, { resolve, userId, timestamp }): MessagesDB => {
+      console.log(action.type);
+      function updateDescendantsCount(
+        replyTo: MessageId,
+        direction: number,
+        time?: number
+      ) {
+        messages[replyTo].descendantsCount =
+          (messages[replyTo].descendantsCount || 0) + direction;
+        if (time) messages[replyTo].latestReplyAt = time;
+        let grandParent = messages[replyTo]?.replyTo;
+        if (grandParent) {
+          updateDescendantsCount(grandParent, direction, time);
+        }
+      }
+
       if (action.type === "MessageCreate") {
         if (!userId) {
           resolve("Unauthorized");
           return messages;
         }
+        // TODO: Better identifiers (UUID/...).
         const messageId = (Math.random() + 1).toString(36).substring(7);
 
-        resolve(false);
+        if (action.replyTo) {
+          if (messages[action.replyTo]) {
+            messages[action.replyTo].children.push(messageId);
+            updateDescendantsCount(action.replyTo, 1, timestamp);
+          }
+        }
         messages[messageId] = {
           body: action.body,
           sender: userId,
           tags: action.tags,
           replyTo: action.replyTo,
-          createdAt: new Date().getTime(),
+          createdAt: timestamp,
           id: messageId,
           children: [],
+          descendantsCount: 0,
         };
+        resolve(false);
       } else if (action.type === "MessageEdit") {
         const message = messages[action.messageId];
         if (message) {
@@ -92,7 +117,12 @@ export const useMessages = () =>
         if (message) {
           if (message.sender === userId) {
             resolve(false);
-            messages[action.messageId].deleted = true;
+            messages[action.messageId].deleted =
+              !messages[action.messageId].deleted;
+            const replyToId = messages[action.messageId].replyTo;
+            if (replyToId) {
+              updateDescendantsCount(replyToId, -1);
+            }
           } else {
             resolve("Unauthorized");
           }
@@ -100,6 +130,7 @@ export const useMessages = () =>
           resolve("Message does not exist");
         }
       } else if (action.type === "NewMessages") {
+        console.log(userId);
         if (userId === 1 || userId === 2) {
           // only Steve or Adriaan can do this
           resolve(false);

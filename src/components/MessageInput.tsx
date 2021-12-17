@@ -21,6 +21,7 @@ export default function MessageInput({
   const [showTagModal, setShowTagModal] = useState(false);
 
   async function actuallySendMessage() {
+    // TODO: Having to check for user again is smelly.
     if (!user) {
       return "Unauthorized";
     }
@@ -57,6 +58,7 @@ export default function MessageInput({
           padding: 7,
           border: "1.5px solid lightgray",
           borderRadius: 4,
+          margin: 10,
         }}
         placeholder={
           "Send message" + (channel === "all" ? "..." : ` to ${channel}`)

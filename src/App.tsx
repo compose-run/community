@@ -49,7 +49,6 @@ export default function ChatApp() {
         flexDirection: "column",
         alignItems: "stretch",
         justifyContent: "space-between",
-        padding: 10,
         width: "100%",
       }}
     >
