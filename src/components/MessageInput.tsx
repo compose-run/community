@@ -58,6 +58,7 @@ export default function MessageInput({
           padding: 7,
           border: "1.5px solid lightgray",
           borderRadius: 4,
+          margin: 10,
         }}
         placeholder={
           "Send message" + (channel === "all" ? "..." : ` to ${channel}`)

@@ -46,8 +46,9 @@ export default function ReplyInput({
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", marginLeft: 20 }}>
       <textarea
+        autoFocus
         rows={message.split("\n").length}
         value={message}
         style={{ width: "100%", padding: 7 }}

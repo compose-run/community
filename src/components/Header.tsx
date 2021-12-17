@@ -36,6 +36,7 @@ export default function Header({
         rowGap: "8px",
         columnGap: "20px",
         alignItems: "center",
+        padding: 10,
       }}
     >
       <div style={{ display: "flex" }}>ComposeJS</div>
