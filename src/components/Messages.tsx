@@ -49,7 +49,7 @@ export default function Messages({ channel }: { channel: Channel }) {
               )
             )
         ) : (
-          <div className="loading">"Loading messages..."</div>
+          <div className="loading">Loading messages...</div>
         )}
       </div>
     </div>
