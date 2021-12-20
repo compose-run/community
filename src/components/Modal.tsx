@@ -48,7 +48,7 @@ export default function Modal({
           paddingRight: 18,
           paddingLeft: 18,
           minHeight: "170px",
-          width: "470px" /* Could be more or less, depending on screen size */,
+          width: "550px",
           transition: "0.4s" /* Fade in */,
           borderRadius: "5px",
           display: "flex",

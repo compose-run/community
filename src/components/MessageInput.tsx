@@ -4,6 +4,7 @@ import { useUser, User } from "@compose-run/client";
 import { MessageActionError, useMessages } from "../state/messages";
 import Modal from "./Modal";
 import LoginModal from "./LoginModal";
+import { undefinedify } from "../utils";
 
 export default function MessageInput({
   channel,
@@ -15,10 +16,9 @@ export default function MessageInput({
   const user: User | null = useUser();
   const [, dispatchMessageAction] = useMessages();
   const [message, setMessage] = useState("");
-
   const [showLoginModal, setShowLoginModal] = useState(false);
-
   const [showTagModal, setShowTagModal] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
 
   async function actuallySendMessage() {
     // TODO: Having to check for user again is smelly.
@@ -26,12 +26,14 @@ export default function MessageInput({
       return "Unauthorized";
     }
 
-    let result = dispatchMessageAction({
+    setMessageSending(true);
+    let result = await dispatchMessageAction({
       type: "MessageCreate",
       sender: user.id, //  TODO -  set this via context, and link to username
       body: message,
       tags: [channel], // TODO - find all tags
     });
+    setMessageSending(false);
     setMessage("");
     return result;
   }
@@ -87,6 +89,8 @@ export default function MessageInput({
             setChannel(newChannel);
           }
         }}
+        className={undefinedify(messageSending) && "animate-pulse"}
+        disabled={messageSending}
       />
       {/* TODO - need send button for mobile */}
       <LoginModal

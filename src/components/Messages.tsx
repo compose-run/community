@@ -20,36 +20,37 @@ export default function Messages({ channel }: { channel: Channel }) {
       }}
     >
       <div>
-        {messages
-          ? Object.values(messages)
-              .filter(
-                (message: MessageType) =>
-                  !message.replyTo &&
-                  (channel === "all" || message.tags.includes(channel))
+        {messages ? (
+          Object.values(messages)
+            .filter(
+              (message: MessageType) =>
+                !message.replyTo &&
+                (channel === "all" || message.tags.includes(channel))
+            )
+            .sort((a: MessageType, b: MessageType) => a.createdAt - b.createdAt)
+            .map(
+              (
+                message: MessageType,
+                index: number,
+                messagesViewing: MessageType[]
+              ) => (
+                <Message
+                  style={{
+                    borderBottom:
+                      index + 1 > messagesViewing.length ||
+                      messagesViewing.slice(index + 1).every((m) => m.deleted)
+                        ? "none"
+                        : "1px solid lightgray",
+                  }}
+                  key={index}
+                  message={message}
+                  channel={channel}
+                />
               )
-              .sort(
-                (a: MessageType, b: MessageType) => a.createdAt - b.createdAt
-              )
-              .map(
-                (
-                  message: MessageType,
-                  index: number,
-                  messagesViewing: MessageType[]
-                ) => (
-                  <Message
-                    style={{
-                      borderBottom:
-                        index + 1 !== messagesViewing.length
-                          ? "1px solid lightgray"
-                          : "none",
-                    }}
-                    key={index}
-                    message={message}
-                    channel={channel}
-                  />
-                )
-              )
-          : "Loading..."}
+            )
+        ) : (
+          <div className="loading">Loading messages...</div>
+        )}
       </div>
     </div>
   );
