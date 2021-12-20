@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useUsers } from "../state/users";
+import { undefinedify } from "../utils";
 import Modal from "./Modal";
 
 export default function SetUsernameModal({
@@ -9,6 +11,8 @@ export default function SetUsernameModal({
   setShowUsernameModal: (showUsernameModal: boolean) => void;
 }) {
   const [, dispatchUpdateUserAction] = useUsers();
+  const [waitingUsernameSet, setWaitingForUsernameSet] = useState(false);
+
   return (
     <Modal show={showUsernameModal} onClose={() => setShowUsernameModal(false)}>
       <div
@@ -46,11 +50,16 @@ export default function SetUsernameModal({
             onKeyPress={async (e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                // could await this, and add a spinner...
-                dispatchUpdateUserAction((e.target as HTMLInputElement).value);
+                setWaitingForUsernameSet(true);
+                await dispatchUpdateUserAction(
+                  (e.target as HTMLInputElement).value
+                );
+                setWaitingForUsernameSet(false);
                 setShowUsernameModal(false);
               }
             }}
+            disabled={waitingUsernameSet}
+            className={undefinedify(waitingUsernameSet) && "loading"}
           />
         </div>
       </div>

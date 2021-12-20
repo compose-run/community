@@ -55,7 +55,6 @@ export const useMessages = () =>
     name: `${appName}/${messages}`,
     initialState: getPreviousState(messages, {}),
     reducer: (messages, action, { resolve, userId, timestamp }): MessagesDB => {
-      console.log(action.type);
       function updateDescendantsCount(
         replyTo: MessageId,
         direction: number,

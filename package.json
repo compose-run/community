@@ -5,7 +5,7 @@
   "keywords": [],
   "main": "src/index.js",
   "dependencies": {
-    "@compose-run/client": "^0.0.30",
+    "@compose-run/client": "^0.0.32",
     "dayjs": "1.10.7",
     "dompurify": "2.0.0",
     "firebase": "9.4.0",
@@ -13,7 +13,7 @@
     "marked": "3.0.8",
     "react": "17.0.2",
     "react-dom": "17.0.2",
-    "react-scripts": "next",
+    "react-scripts": "^5.0.0-next.60",
     "uuid": "8.3.2"
   },
   "devDependencies": {
@@ -43,5 +43,8 @@
     "extends": [
       "react-app"
     ]
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

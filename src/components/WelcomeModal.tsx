@@ -33,7 +33,7 @@ export default function WelcomeModal({
           <div style={{ paddingTop: 20 }}>
             We're so excited you're here! A few things you should know:{" "}
           </div>
-          <ol style={{ paddingTop: 10 }}>
+          <ol style={{ paddingTop: 20 }}>
             <li>
               This community chat app was{" "}
               <a href="https://github.com/compose-run/compose-community">
@@ -75,7 +75,7 @@ export default function WelcomeModal({
             style={{
               display: "flex",
               justifyContent: "center",
-              paddingTop: 10,
+              paddingTop: 25,
             }}
           >
             <button
@@ -84,6 +84,7 @@ export default function WelcomeModal({
                 backgroundColor: "lightgray",
                 padding: "10px 20px",
                 borderRadius: 5,
+                fontWeight: 300,
               }}
               onClick={() => setShowWelcomeModal(false)}
             >
@@ -96,6 +97,7 @@ export default function WelcomeModal({
                 backgroundColor: "lightgreen",
                 padding: "10px 20px",
                 borderRadius: 5,
+                fontWeight: 300,
               }}
               onClick={() => {
                 setShowLoginModal(true);

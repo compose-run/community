@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useUser } from "@compose-run/client";
 import ReplyInput from "./ReplyInput";
 import ReplyMessages from "./ReplyMessages";
+import { undefinedify } from "../utils";
 
 const marked = require("marked");
 var dayjs = require("dayjs");
@@ -40,6 +41,8 @@ export default function Message({
   const [, messageDispatch] = useMessages();
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [showReplies, setShowReplies] = useState(showRepliesStart);
+  const [dispatchingEdit, setDispatchingEdit] = useState(false);
+  const [dispatchingDelete, setDispatchingDelete] = useState(false);
 
   // The tags that are not just the channel name.
   const tagsHere = tags.filter((tag) => tag !== channel);
@@ -48,21 +51,42 @@ export default function Message({
     return { __html: sanitize(marked.parse(body)) };
   }
 
-  const saveMsg = () => {
-    setEditing(false);
-    // TODO: resolve edit message promise, show a spinner or greyed out version
-    // of the message while we know the result.
-    messageDispatch({
+  const saveMsg = async () => {
+    setDispatchingEdit(true);
+    await messageDispatch({
       type: "MessageEdit",
       messageId: id,
       body: editingMsg,
     });
-    setEditingMsg("");
+    setEditing(false);
+    setDispatchingEdit(false);
   };
 
   if (deleted && !descendantsCount) {
     return <></>;
   }
+
+  const tagsComponent =
+    tagsHere.length !== 0 ? (
+      <div>
+        {tagsHere.map((tag, index) => (
+          <div
+            key={index}
+            style={{
+              fontSize: "0.7em",
+              padding: 2,
+              fontFamily: "monospace",
+              backgroundColor: channelColors[channels.indexOf(tag)],
+              borderRadius: 5,
+            }}
+          >
+            {tag}
+          </div>
+        ))}
+      </div>
+    ) : (
+      <></>
+    );
 
   return (
     <div
@@ -70,9 +94,12 @@ export default function Message({
         borderBottom,
         cursor: "default",
       }}
+      className={undefinedify(dispatchingDelete) && "loading"}
       onClick={(e) => {
         e.stopPropagation();
-        setShowReplies(!showReplies);
+        if (!editing) {
+          setShowReplies(!showReplies);
+        }
       }}
     >
       <div className="group hover:bg-gray-50 pt-2 pb-2 pl-3 pr-3">
@@ -86,83 +113,57 @@ export default function Message({
           }}
         >
           <div>{(users && users[sender].name) || "User " + sender}</div>
-          <div style={{ display: "flex", columnGap: "5px" }}>
-            <div style={{ fontSize: "0.7em" }}>
-              {dayjs(createdAt).fromNow()}
-            </div>
-            {tagsHere.length !== 0 ? (
-              <div>
-                {tagsHere.map((tag, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      fontSize: "0.7em",
-                      padding: 2,
-                      fontFamily: "monospace",
-                      backgroundColor: channelColors[channels.indexOf(tag)],
-                      borderRadius: 5,
-                    }}
-                  >
-                    {tag}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <></>
+          <div style={{ fontSize: "0.7em" }}>{dayjs(createdAt).fromNow()}</div>
+          {tagsComponent}
+          <div className="hidden group-hover:flex gap-1">
+            {undefinedify(user) && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReplyInput(!showReplyInput);
+                  if (!showReplies) {
+                    setShowReplies(true);
+                  }
+                }}
+              >
+                💬
+              </button>
             )}
-            <div
-              className="hidden group-hover:flex gap-1"
-              style={{
-                fontSize: "0.7em",
-              }}
-            >
-              {user ? (
+            {undefinedify(
+              user &&
+                user.id === sender &&
+                !editing &&
+                !dispatchingEdit &&
+                !dispatchingDelete
+            ) && (
+              <>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowReplyInput(!showReplyInput);
-                    if (!showReplies) {
-                      setShowReplies(true);
-                    }
+                    setEditingMsg(body);
+                    setEditing(true);
                   }}
                 >
-                  💬
+                  ✏️
                 </button>
-              ) : (
-                <></>
-              )}
-              {user && user.id === sender ? (
-                <>
-                  {editing ? (
-                    <></>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingMsg(body);
-                        setEditing(true);
-                      }}
-                    >
-                      ✏️
-                    </button>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // TODO: resolve delete promise
-                      messageDispatch({ type: "MessageDelete", messageId: id });
-                    }}
-                  >
-                    ❌
-                  </button>
-                </>
-              ) : (
-                <></>
-              )}
-            </div>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    setDispatchingDelete(true);
+                    await messageDispatch({
+                      type: "MessageDelete",
+                      messageId: id,
+                    });
+                    setDispatchingDelete(false);
+                  }}
+                >
+                  ❌
+                </button>
+              </>
+            )}
           </div>
         </div>
-        {editing ? (
+        {editing || dispatchingEdit ? (
           <div
             style={{
               display: "flex",
@@ -185,7 +186,15 @@ export default function Message({
                   saveMsg();
                 }
               }}
-            ></textarea>
+              disabled={dispatchingEdit}
+              className={dispatchingEdit ? "loading" : ""}
+              autoFocus
+              onFocus={(e) => {
+                let temp = e.target.value;
+                e.target.value = "";
+                e.target.value = temp;
+              }}
+            />
             <div
               style={{
                 display: "flex",
@@ -215,7 +224,7 @@ export default function Message({
           </div>
         ) : (
           <div
-            style={{ marginTop: 8, fontSize: "0.9em" }}
+            style={{ marginTop: 8 }}
             dangerouslySetInnerHTML={deleted ? undefined : bodyHTML()}
           >
             {deleted ? "[message deleted]" : undefined}

@@ -16,7 +16,56 @@ export default function LoginModal({
     if (user) setShowLoginModal(false);
   }, [user, setShowLoginModal]);
 
-  const [emailSent, setEmailSent] = useState(false);
+  type EmailState = "idle" | "loading" | "success" | "error";
+  const [emailSent, setEmailSent] = useState<EmailState>("idle");
+
+  let display = <></>;
+  if (emailSent === "idle" || emailSent === "loading") {
+    display = (
+      <div>
+        <input
+          autoFocus
+          className={`${emailSent === "loading" ? "loading" : ""}`}
+          disabled={emailSent === "loading"}
+          style={{
+            width: "80%",
+            fontSize: "1.2em",
+            color: "#6e6c6c",
+            marginTop: "25px",
+          }}
+          placeholder="you@email.com"
+          onKeyPress={async (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              setEmailSent("loading");
+              await magicLinkLogin({
+                email: (e.target as HTMLInputElement).value,
+                appName: "Compose Community",
+              });
+              setEmailSent("success");
+            }
+          }}
+        ></input>
+      </div>
+    );
+  } else if (emailSent === "success") {
+    display = (
+      <div
+        style={{
+          width: "80%",
+          fontSize: "1.2em",
+          color: "#6e6c6c",
+          marginTop: "25px",
+          border: "none",
+        }}
+      >
+        Check your inbox for a login link!
+      </div>
+    );
+  } else if (emailSent === "error") {
+    // TOOD
+  }
+
   return (
     <Modal show={showLoginModal} onClose={() => setShowLoginModal(false)}>
       <div
@@ -35,49 +84,7 @@ export default function LoginModal({
         >
           {message}
         </div>
-        {emailSent ? (
-          <div
-            style={{
-              width: "80%",
-              fontSize: "1.2em",
-              color: "#6e6c6c",
-              marginTop: "25px",
-              paddingLeft: ".3em",
-              border: "none",
-            }}
-          >
-            Check your inbox for a login link!
-          </div>
-        ) : (
-          <div>
-            <input
-              autoFocus
-              style={{
-                width: "80%",
-                fontSize: "1.2em",
-                color: "#6e6c6c",
-                marginTop: "25px",
-                paddingLeft: ".3em",
-                // would be nice to have it show the input border if the input is not selected
-                // but there's no css hover state selectors natively in react
-                // maybe we'll move to tailwind or some other lib that supports that
-                border: "none",
-              }}
-              placeholder="you@email.com"
-              onKeyPress={async (e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  await magicLinkLogin({
-                    email: (e.target as HTMLInputElement).value,
-                    appName: "Compose Community",
-                    redirectURL: undefined, // defaults to current page
-                  });
-                  setEmailSent(true);
-                }
-              }}
-            ></input>
-          </div>
-        )}
+        {display}
       </div>
     </Modal>
   );
