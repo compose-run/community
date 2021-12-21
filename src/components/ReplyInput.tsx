@@ -50,35 +50,43 @@ export default function ReplyInput({
   }
 
   return (
-    <div style={{ display: "flex", marginLeft: 20 }}>
-      <textarea
-        autoFocus
-        rows={message.split("\n").length}
-        value={message}
-        style={{ width: "100%", padding: 7 }}
-        placeholder={
-          "Reply message"
-          // TODO: Reply to <username> maybe?
-        }
-        onKeyPress={(e) => {
-          // TODO - disable for mobile
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-          }
-        }}
-        onChange={(e) => {
-          setMessage((e.target as HTMLTextAreaElement).value);
-        }}
-        className={dispatching ? "loading" : ""}
-        disabled={dispatching}
-      />
-      {/* TODO - need send button for mobile */}
+    <>
+      <div style={{ display: "flex", marginLeft: 20, position: "relative" }}>
+        <textarea
+          autoFocus
+          rows={message.split("\n").length}
+          value={message}
+          style={{ width: "100%", padding: 7 }}
+          placeholder={"Send reply"}
+          onKeyPress={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
+          onChange={(e) => {
+            setMessage((e.target as HTMLTextAreaElement).value);
+          }}
+          className={dispatching ? "loading" : ""}
+          disabled={dispatching}
+        />
+        <span className="absolute inset-r-0 right-0 bottom-0 flex items-center pr-5 pb-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              sendMessage();
+            }}
+            className="p-1 focus:outline-none focus:shadow-outline"
+          >
+            ➡️
+          </button>
+        </span>
+      </div>
       <LoginModal
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}
         message="Create an account to send your message"
       />
-    </div>
+    </>
   );
 }

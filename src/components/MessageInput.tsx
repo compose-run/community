@@ -67,7 +67,6 @@ export default function MessageInput({
             "Send message" + (channel === "all" ? "..." : ` to ${channel}`)
           }
           onKeyPress={(e) => {
-            // TODO - disable for mobile
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               sendMessage();

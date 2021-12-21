@@ -180,7 +180,6 @@ export default function Message({
                 setEditingMsg((e.target as HTMLTextAreaElement).value);
               }}
               onKeyPress={(e) => {
-                // TODO - disable for mobile
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.stopPropagation();
                   saveMsg();
@@ -237,8 +236,7 @@ export default function Message({
             </div>
             {latestReplyAt && (
               <div style={{ marginLeft: 4, color: "#9a999a" }}>
-                Last reply{" "}
-                {dayjs(latestReplyAt).fromNow() /* TODO - last reply time */}
+                Last reply {dayjs(latestReplyAt).fromNow()}
               </div>
             )}
           </div>
