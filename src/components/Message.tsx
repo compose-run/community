@@ -102,7 +102,7 @@ export default function Message({
         }
       }}
     >
-      <div className="group hover:bg-gray-50 pt-2 pb-2 pl-3 pr-3">
+      <div className="group hover:bg-gray-50 pt-2 pb-2 pl-3 pr-3 ">
         <div
           style={{
             display: "flex",
@@ -115,7 +115,7 @@ export default function Message({
           <div>{(users && users[sender].name) || "User " + sender}</div>
           <div style={{ fontSize: "0.7em" }}>{dayjs(createdAt).fromNow()}</div>
           {tagsComponent}
-          <div className="hidden group-hover:flex gap-1">
+          <div className="hidden group-hover:flex gap-1 sm:text-xs">
             {undefinedify(user) && (
               <button
                 onClick={(e) => {

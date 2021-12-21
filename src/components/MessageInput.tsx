@@ -52,7 +52,7 @@ export default function MessageInput({
 
   return (
     <>
-      <div style={{ display: "flex" }}>
+      <div className="flex">
         <textarea
           rows={message.split("\n").length}
           value={message}
@@ -93,7 +93,17 @@ export default function MessageInput({
           className={undefinedify(messageSending) && "animate-pulse"}
           disabled={messageSending}
         />
-        {/* TODO - need send button for mobile */}
+        <span className="absolute inset-r-0 right-0 bottom-0 flex items-center pr-5 pb-3">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              sendMessage();
+            }}
+            className="p-1 focus:outline-none focus:shadow-outline"
+          >
+            ➡️
+          </button>
+        </span>
       </div>
       <LoginModal
         showLoginModal={showLoginModal}

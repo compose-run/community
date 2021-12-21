@@ -39,7 +39,12 @@ export default function Header({
         padding: 10,
       }}
     >
-      <a style={{ display: "flex" }} href="http://compose.run" target="_blank">
+      <a
+        style={{ display: "flex" }}
+        href="http://compose.run"
+        target="_blank"
+        rel="noreferrer"
+      >
         ComposeJS
       </a>
       <div
