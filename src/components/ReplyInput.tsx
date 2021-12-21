@@ -14,6 +14,7 @@ export default function ReplyInput({
 }) {
   const user: User | null = useUser();
   const [, dispatchMessageAction] = useMessages();
+  const [dispatching, setDispatching] = useState(false);
   const [message, setMessage] = useState("");
 
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -23,13 +24,16 @@ export default function ReplyInput({
       return "Unauthorized";
     }
 
-    let result = dispatchMessageAction({
+    setDispatching(true);
+    let result = await dispatchMessageAction({
       type: "MessageCreate",
       sender: user.id, //  TODO -  set this via context, and link to username
       body: message,
       tags: [], // TODO - find all tags
       replyTo: replyTo,
     });
+    setDispatching(false);
+
     setMessage("");
     onReply && onReply(); // TODO: pass result here?
     return result;
@@ -66,6 +70,8 @@ export default function ReplyInput({
         onChange={(e) => {
           setMessage((e.target as HTMLTextAreaElement).value);
         }}
+        className={dispatching ? "loading" : ""}
+        disabled={dispatching}
       />
       {/* TODO - need send button for mobile */}
       <LoginModal

@@ -53,9 +53,11 @@ export default function SetUsernameModal({
                 setShowUsernameModal(false);
               }
             }}
+            placeholder="Programmer Extraordinaire"
             disabled={waitingUsernameSet}
             className={
-              (waitingUsernameSet ? "loading " : "") + "focus:border-0"
+              (waitingUsernameSet ? "loading " : "") +
+              "focus:border-transparent border-2 p-2 rounded-sm"
             }
           />
         </div>
