@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useUsers } from "../state/users";
 import Modal from "./Modal";
 
@@ -9,6 +10,8 @@ export default function SetUsernameModal({
   setShowUsernameModal: (showUsernameModal: boolean) => void;
 }) {
   const [, dispatchUpdateUserAction] = useUsers();
+  const [waitingUsernameSet, setWaitingForUsernameSet] = useState(false);
+
   return (
     <Modal show={showUsernameModal} onClose={() => setShowUsernameModal(false)}>
       <div
@@ -38,19 +41,22 @@ export default function SetUsernameModal({
               color: "#6e6c6c",
               marginTop: "25px",
               paddingLeft: ".3em",
-              // would be nice to have it show the input border if the input is not selected
-              // but there's no css hover state selectors natively in react
-              // maybe we'll move to tailwind or some other lib that supports that
-              border: "none",
             }}
             onKeyPress={async (e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                // could await this, and add a spinner...
-                dispatchUpdateUserAction((e.target as HTMLInputElement).value);
+                setWaitingForUsernameSet(true);
+                await dispatchUpdateUserAction(
+                  (e.target as HTMLInputElement).value
+                );
+                setWaitingForUsernameSet(false);
                 setShowUsernameModal(false);
               }
             }}
+            disabled={waitingUsernameSet}
+            className={
+              (waitingUsernameSet ? "loading " : "") + "focus:border-0"
+            }
           />
         </div>
       </div>

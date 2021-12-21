@@ -84,6 +84,7 @@ export default function WelcomeModal({
                 backgroundColor: "lightgray",
                 padding: "10px 20px",
                 borderRadius: 5,
+                fontWeight: 300,
               }}
               onClick={() => setShowWelcomeModal(false)}
             >
@@ -96,6 +97,7 @@ export default function WelcomeModal({
                 backgroundColor: "lightgreen",
                 padding: "10px 20px",
                 borderRadius: 5,
+                fontWeight: 300,
               }}
               onClick={() => {
                 setShowLoginModal(true);
