@@ -51,48 +51,50 @@ export default function MessageInput({
   }
 
   return (
-    <div style={{ display: "flex" }}>
-      <textarea
-        rows={message.split("\n").length}
-        value={message}
-        style={{
-          width: "100%",
-          padding: 7,
-          border: "1.5px solid lightgray",
-          borderRadius: 4,
-          margin: 10,
-        }}
-        placeholder={
-          "Send message" + (channel === "all" ? "..." : ` to ${channel}`)
-        }
-        onKeyPress={(e) => {
-          // TODO - disable for mobile
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
+    <>
+      <div style={{ display: "flex" }}>
+        <textarea
+          rows={message.split("\n").length}
+          value={message}
+          style={{
+            width: "100%",
+            padding: 7,
+            border: "1.5px solid lightgray",
+            borderRadius: 4,
+            margin: 10,
+          }}
+          placeholder={
+            "Send message" + (channel === "all" ? "..." : ` to ${channel}`)
           }
-        }}
-        onChange={(e) => {
-          setMessage((e.target as HTMLTextAreaElement).value);
-          const newChannel = channels
-            .filter((c) => c !== "all" && c !== channel)
-            .find(
-              (c) =>
-                e.target.value === c ||
-                e.target.value.startsWith(c + " ") ||
-                e.target.value.endsWith(" " + c) ||
-                e.target.value.includes(" " + c + " ")
-            );
-          if (newChannel) {
-            // TODO - remove all other channels via regex
+          onKeyPress={(e) => {
+            // TODO - disable for mobile
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
+          onChange={(e) => {
+            setMessage((e.target as HTMLTextAreaElement).value);
+            const newChannel = channels
+              .filter((c) => c !== "all" && c !== channel)
+              .find(
+                (c) =>
+                  e.target.value === c ||
+                  e.target.value.startsWith(c + " ") ||
+                  e.target.value.endsWith(" " + c) ||
+                  e.target.value.includes(" " + c + " ")
+              );
+            if (newChannel) {
+              // TODO - remove all other channels via regex
 
-            setChannel(newChannel);
-          }
-        }}
-        className={undefinedify(messageSending) && "animate-pulse"}
-        disabled={messageSending}
-      />
-      {/* TODO - need send button for mobile */}
+              setChannel(newChannel);
+            }
+          }}
+          className={undefinedify(messageSending) && "animate-pulse"}
+          disabled={messageSending}
+        />
+        {/* TODO - need send button for mobile */}
+      </div>
       <LoginModal
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}
@@ -105,7 +107,7 @@ export default function MessageInput({
         setChannel={setChannel}
         actuallySendMessage={actuallySendMessage}
       />
-    </div>
+    </>
   );
 }
 

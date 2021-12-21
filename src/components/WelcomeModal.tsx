@@ -28,7 +28,7 @@ export default function WelcomeModal({
               fontWeight: 300,
             }}
           >
-            🎉 Welcome to the Compose Community 🎉
+            🎉 &nbsp;Welcome to the Compose Community 🎉
           </div>
           <div style={{ paddingTop: 20 }}>
             We're so excited you're here! A few things you should know:{" "}
