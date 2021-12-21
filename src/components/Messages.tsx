@@ -14,7 +14,6 @@ export default function Messages({ channel }: { channel: Channel }) {
         flexGrow: 1,
         marginTop: 10,
         marginBottom: 10,
-        overflowY: "scroll",
         display: "flex",
         flexDirection: "column-reverse",
       }}
