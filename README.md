@@ -54,7 +54,7 @@ export const useUsers = () =>
   useCloudReducer<UsersDB, UserAction, UserActionError>({
     name: `${appName}/${users}`,
     initialState: getPreviousState(users, {}).then(migration), // <- This is how you add the migration
-    reducer: (users, action, { userId }): UsersDB => {
+    reducer: ({previousState: users, action userId }): UsersDB => {
       users[userId] = { name: action };
       return users;
     },

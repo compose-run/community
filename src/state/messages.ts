@@ -54,7 +54,12 @@ export const useMessages = () =>
   useCloudReducer<MessagesDB, MessageAction, MessageActionError>({
     name: `${appName}/${messages}`,
     initialState: getPreviousState(messages, {}),
-    reducer: (messages, action, { resolve, userId, timestamp }): MessagesDB => {
+    reducer: ({
+      previousState: messages,
+      action,
+      resolve,
+      userId,
+    }): MessagesDB => {
       function updateDescendantsCount(
         replyTo: MessageId,
         direction: number,
@@ -80,7 +85,7 @@ export const useMessages = () =>
         if (action.replyTo) {
           if (messages[action.replyTo]) {
             messages[action.replyTo].children.push(messageId);
-            updateDescendantsCount(action.replyTo, 1, timestamp);
+            updateDescendantsCount(action.replyTo, 1, Date.now());
           }
         }
         messages[messageId] = {
@@ -88,7 +93,7 @@ export const useMessages = () =>
           sender: userId,
           tags: action.tags,
           replyTo: action.replyTo,
-          createdAt: timestamp,
+          createdAt: Date.now(),
           id: messageId,
           children: [],
           descendantsCount: 0,

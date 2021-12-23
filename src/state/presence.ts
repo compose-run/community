@@ -19,9 +19,9 @@ export const usePresence = () => {
   >({
     name: `${appName}/${presence}`,
     initialState: getPreviousState(presence, {}),
-    reducer: (users, _, { userId, timestamp }) => {
+    reducer: ({ previousState: users, userId }) => {
       if (userId) {
-        users[userId] = timestamp;
+        users[userId] = Date.now();
       }
       return users;
     },

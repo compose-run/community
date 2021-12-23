@@ -26,8 +26,10 @@ export const useUsers = () =>
   useCloudReducer<UsersDB, UserAction, UserActionError>({
     name: `${appName}/${users}`,
     initialState: getPreviousState(users, {}).then(migration),
-    reducer: (users, action, { userId }): UsersDB => {
-      users[userId] = { name: action };
+    reducer: ({ previousState: users, action, userId }): UsersDB => {
+      if (userId) {
+        users[userId] = { name: action };
+      }
       return users;
     },
   });
