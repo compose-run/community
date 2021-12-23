@@ -43,7 +43,7 @@ export default function LoginModal({
               setEmailSent("loading");
               await magicLinkLogin({
                 email: (e.target as HTMLInputElement).value,
-                appName: "Compose Community",
+                appName: "The Compose Community",
               });
               setEmailSent("success");
             }

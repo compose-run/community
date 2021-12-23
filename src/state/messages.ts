@@ -75,6 +75,8 @@ export const useMessages = () =>
       }
 
       if (action.type === "MessageCreate") {
+        console.log("New message!");
+        console.log(action.body);
         if (!userId) {
           resolve("Unauthorized");
           return messages;

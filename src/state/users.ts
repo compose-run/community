@@ -27,6 +27,7 @@ export const useUsers = () =>
     name: `${appName}/${users}`,
     initialState: getPreviousState(users, {}).then(migration),
     reducer: ({ previousState: users, action, userId }): UsersDB => {
+      console.log("New user!");
       if (userId) {
         users[userId] = { name: action };
       }
