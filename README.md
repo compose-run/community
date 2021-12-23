@@ -25,9 +25,11 @@ This project uses Create React App for hot-module reloading.
 
 This project uses a custom branching & migration system.
 
-All Compose state is prefixed with the git branch name and commit hash. This means that each branch & commit has isolated state. Upon normal usage (committing to a branch or merging to main), each new state pulls its `initialState` from the last state of the prior commit hash's state.
+All Compose state is prefixed with the git branch name and commit hash. This means that each branch & commit has isolated state.
 
-If it doesn't find any state in the previous branch's commit, it goes back up to 10 commit hashes on that branch, and on main. (This limitation is partially why we squash branches before merging into main.) So when you branch off main, you get an isolated copy of the application state. When you merge back into main, your app pulls its state from the prior commit hash's state on main.
+Upon normal usage (committing to a branch or merging to main), each new state pulls its `initialState` from the last state of the prior commit hash's state. If it doesn't find any state in the previous branch's commit, it goes back up to 10 commit hashes on that branch, and on main. These commit values are added to the Environment here in [env.sh](https://github.com/compose-run/community/blob/main/env.sh) and searched through in [appName.ts](https://github.com/compose-run/community/blob/main/src/state/appName.ts). (This limitation of only 10 previous commits is why this repo squashes branches before merging them into main.)
+
+So when you branch off main, you get an isolated copy of the application state. When you merge back into main, your app pulls its state from the prior commit hash's state on main.
 
 This scheme also allows you to run migrations. You can simply add a `.then` to `initialState` value and run the migration function on the previous state for that name. For example:
 
